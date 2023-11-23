@@ -1,0 +1,2816 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+
+<div class="container py-3">
+
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Please Note</h4>
+
+    <ul>
+        <li>You have to be an <span style="color: rgb(255, 0, 0);"><b>English Native Speaker</b></span>.</li>
+        <li>You must complete the examples correctly to submit the HIT.</li>
+        <li>You have to complete the ratings for all sentences.<span style="color: rgb(255, 0, 0);"><b> All fields are required.</b></span></li>
+        <li>Some of the tasks are control samples! Please read the instructions carefully. We reserve the right to reject the HIT if these are not completed correctly.</li>
+    </ul>
+</div>
+
+<h4>Informed Consent</h4>
+<p class="m-1">This study is being conducted by researchers at the School of Computing, Engineering, and the Built Environment, Edinburgh Napier University. If you have any questions about this study, feel free to contact us (lewis.watson@napier.ac.uk).   Participation in this research is voluntary. You have the right to withdraw from the experiment at any time. The collected data will be used for research purposes only. All output data will be anonymised and we will not collect or store any information that could be used to identify who you are. A full Participant Information Sheet is available <a href="http://tomho.sk/models/2021_PIS_HRQVAE.docx">here</a>. </p>
+
+
+<div class="form-group">
+  <div class="form-check">
+    <input type="checkbox" name="consent" id="consent" class="form-check-input" />
+    <label for="consent" class="form-check-label"> I understand the participant information and consent to participate in this study.</label>
+    </div>
+</div>
+
+
+<p class="m-2">If you do not consent, please return this HIT.</p>
+
+<h4>Instructions</h4>
+<p class="m-2">In this task you will read roughly thirty examples of sentences and two paraphrases created by a computer program. The program aims to rewrite the sentence so that it means the same thing, but using different words and/or different word order. </p>
+
+<p class="m-2"><strong>Please read all the sentences carefully</strong>, this should take you about 20 minutes (if you do the task very quickly your HIT will be rejected).</p>
+<p class="m-2">You will be asked to choose which system performs better, for three aspects of the paraphrases:</p>
+<ol>
+    <li>Which system output is the most <strong>fluent and grammatical</strong>?</li>
+    <li>To what extent is the <strong>meaning</strong> expressed in the original sentence <strong>preserved</strong> in the rewritten version, with no additional information added?</li>
+    <li>Does the rewritten version use <strong>different words or phrasing</strong> to the original? You should choose the system that uses the <strong>most</strong> different words or word order.</li>
+</ol>
+
+<!-- <p class="m-2">In some cases the computer program will choose to add information which is not in the original sentence or miss out information. If this is the case then you should probably rank it lower in terms of meaning. </p>  -->
+<!-- <p class="m-2">In some cases, the rewritten sentence might be a copy of the original sentence, or might only have a single word changed. </p> -->
+
+<p class="m-2">Remember that you are being asked to <strong>rate the system</strong>, not the original.</p>
+<p class="m-2">Some of the sentences only have small differences! Be careful to choose the one that is <strong>most different</strong> for the dissimilarity category. If the control samples are not answered correctly then we will assume that you have answered at random and reject the HIT.</p>
+<p class="m-2">A small number of samples may have two choices that are *exactly* the same - in these cases please pick an answer at random, this will not cause the HIT to be rejected.</p>
+
+<h4>Examples</h4>
+
+<p>First, complete these example tasks correctly:</p>
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>Who is the President of America?</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row m-2">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"The Head of State of the USA is is whom?"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "Who is Captain America?"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most grammatical
+                <br/>
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluencyex0" value="A" id="fluencyex01" onclick="updateExamples(0, 'fluency', 'A');"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluencyex0" value="B" id="fleuncyex02" onclick="updateExamples(0, 'fluency', 'B');"> B
+                    </label>
+                </div>
+            </div>
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaningex0" value="A" id="meaningex01" onclick="updateExamples(0, 'meaning', 'A');"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaningex0" value="B" id="meaningex02" onclick="updateExamples(0, 'meaning', 'B');"> B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissimex0" value="A" id="dissimex01" onclick="updateExamples(0, 'dissim', 'A');"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissimex0" value="B" id="dissimex02" onclick="updateExamples(0, 'dissim', 'B');"> B
+                    </label>
+                </div> 
+            </div>
+        </div>
+        <p class="m-1">Fluency: System A has repeated a word, but System B is grammatically correct, so click 'B'. <span id="exfluencyresult0" style="font-size:24px; color:red;"></span></p>
+        <p class="m-0">Meaning: System A is closer to the original meaning that System B, so click 'A'. <span id="exmeaningresult0" style="font-size:24px; color:red;"></span></p>
+        <p class="m-0">Dissimilarity: System A also uses more different words/phrasing than System B, so click 'A'. <span id="exdissimresult0" style="font-size:24px; color:red;"></span></p>
+
+    </div>
+</div>
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>Who is the President of America?</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row m-2">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"Who the President of America America?"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "Vice President of the USA is whom?"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most grammatical
+                <br/>
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluencyex1" value="A" id="fluencyex11" onclick="updateExamples(1, 'fluency', 'A');"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluencyex1" value="B" id="fleuncyex12" onclick="updateExamples(1, 'fluency', 'B');"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaningex1" value="A" id="meaningex11" onclick="updateExamples(1, 'meaning', 'A');"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaningex1" value="B" id="meaningex12"  onclick="updateExamples(1, 'meaning', 'B');"> B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissimex1" value="A" id="dissimex11" onclick="updateExamples(1, 'dissim', 'A');"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissimex1" value="B" id="dissimex12" onclick="updateExamples(1, 'dissim', 'B');"> B
+                    </label>
+                </div> 
+            </div>
+        </div>
+        <p class="m-1">Fluency: Both outputs have grammar errors, but System B is closer to being correct, so click 'B'. <span id="exfluencyresult1" style="font-size:24px; color:red;"></span></p>
+        <p class="m-1">Meaning: System A means the same thing as the original, but System B doesn't, so click 'A'. <span id="exmeaningresult1" style="font-size:24px; color:red;"></span></p>
+        <p class="m-1">Dissimilarity: System B uses more different words/phrasing than System A, so click 'B'. <span id="exdissimresult1" style="font-size:24px; color:red;"></span></p>
+    </div>
+</div>
+
+<script type="text/javascript">
+function updateExamples(example, field, score)
+{
+    correctHtml = '&#10004;';
+    wrongHtml = '&#10008;';
+    // alert(example + field + score);
+    if (example == 0)
+    {
+        if (field == 'meaning')
+        {
+            if (score == 'A')
+            {
+                document.getElementById('exmeaningresult0').innerHTML = correctHtml;
+            }
+            else
+            {
+                document.getElementById('exmeaningresult0').innerHTML = wrongHtml;
+            }
+        }
+        if (field == 'dissim')
+        {
+            if (score == 'A')
+            {
+                document.getElementById('exdissimresult0').innerHTML = correctHtml;
+            }
+            else
+            {
+                document.getElementById('exdissimresult0').innerHTML = wrongHtml;
+            }
+        }
+        if (field == 'fluency')
+        {
+            if (score == 'B')
+            {
+                document.getElementById('exfluencyresult0').innerHTML = correctHtml;
+            }
+            else
+            {
+                document.getElementById('exfluencyresult0').innerHTML = wrongHtml;
+            }
+        }
+    }
+
+    if (example == 1)
+    {
+        if (field == 'meaning')
+        {
+            if (score == 'A')
+            {
+                document.getElementById('exmeaningresult1').innerHTML = correctHtml;
+            }
+            else
+            {
+                document.getElementById('exmeaningresult1').innerHTML = wrongHtml;
+            }
+        }
+
+        if (field == 'dissim')
+        {
+            if (score == 'B')
+            {
+                document.getElementById('exdissimresult1').innerHTML = correctHtml;
+            }
+            else
+            {
+                document.getElementById('exdissimresult1').innerHTML = wrongHtml;
+            }
+        }
+        if (field == 'fluency')
+        {
+            if (score == 'B')
+            {
+                document.getElementById('exfluencyresult1').innerHTML = correctHtml;
+            }
+            else
+            {
+                document.getElementById('exfluencyresult1').innerHTML = wrongHtml;
+            }
+        }
+    }
+    return false;
+}
+</script>
+
+<hr/>
+
+<h4>Tasks</h4>
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input0}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa0}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb0}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency0" value="A" id="fluency0A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency0" value="B" id="fleuncy0B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning0" value="A" id="meaning0A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning0" value="B" id="meaning0B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim0" value="A" id="dissim0A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim0" value="B" id="dissim0B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+        <p class="m-0">Original:  <strong>"${input1}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa1}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb1}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency1" value="A" id="fluency1A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency1" value="B" id="fleuncy1B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning1" value="A" id="meaning1A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning1" value="B" id="meaning1B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim1" value="A" id="dissim1A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim1" value="B" id="dissim1B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input2}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa2}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb2}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency2" value="A" id="fluency2A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency2" value="B" id="fleuncy2B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning2" value="A" id="meaning2A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning2" value="B" id="meaning2B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim2" value="A" id="dissim2A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim2" value="B" id="dissim2B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input3}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa3}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb3}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency3" value="A" id="fluency3A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency3" value="B" id="fleuncy3B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning3" value="A" id="meaning3A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning3" value="B" id="meaning3B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim3" value="A" id="dissim3A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim3" value="B" id="dissim3B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input4}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa4}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb4}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency4" value="A" id="fluency4A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency4" value="B" id="fleuncy4B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning4" value="A" id="meaning4A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning4" value="B" id="meaning4B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim4" value="A" id="dissim4A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim4" value="B" id="dissim4B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input5}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa5}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb5}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency5" value="A" id="fluency5A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency5" value="B" id="fleuncy5B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning5" value="A" id="meaning5A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning5" value="B" id="meaning5B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim5" value="A" id="dissim5A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim5" value="B" id="dissim5B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input6}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa6}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb6}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency6" value="A" id="fluency6A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency6" value="B" id="fleuncy6B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning6" value="A" id="meaning6A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning6" value="B" id="meaning6B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim6" value="A" id="dissim6A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim6" value="B" id="dissim6B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input7}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa7}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb7}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency7" value="A" id="fluency7A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency7" value="B" id="fleuncy7B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning7" value="A" id="meaning7A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning7" value="B" id="meaning7B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim7" value="A" id="dissim7A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim7" value="B" id="dissim7B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input8}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa8}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb8}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency8" value="A" id="fluency8A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency8" value="B" id="fleuncy8B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning8" value="A" id="meaning8A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning8" value="B" id="meaning8B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim8" value="A" id="dissim8A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim8" value="B" id="dissim8B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input9}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa9}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb9}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency9" value="A" id="fluency9A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency9" value="B" id="fleuncy9B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning9" value="A" id="meaning9A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning9" value="B" id="meaning9B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim9" value="A" id="dissim9A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim9" value="B" id="dissim9B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input10}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa10}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb10}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency10" value="A" id="fluency10A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency10" value="B" id="fleuncy10B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning10" value="A" id="meaning10A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning10" value="B" id="meaning10B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim10" value="A" id="dissim10A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim10" value="B" id="dissim10B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input11}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa11}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb11}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency11" value="A" id="fluency11A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency11" value="B" id="fleuncy11B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning11" value="A" id="meaning11A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning11" value="B" id="meaning11B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim11" value="A" id="dissim11A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim11" value="B" id="dissim11B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input12}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa12}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb12}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency12" value="A" id="fluency12A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency12" value="B" id="fleuncy12B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning12" value="A" id="meaning12A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning12" value="B" id="meaning12B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim12" value="A" id="dissim12A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim12" value="B" id="dissim12B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input13}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa13}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb13}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency13" value="A" id="fluency13A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency13" value="B" id="fleuncy13B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning13" value="A" id="meaning13A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning13" value="B" id="meaning13B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim13" value="A" id="dissim13A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim13" value="B" id="dissim13B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input14}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa14}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb14}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency14" value="A" id="fluency14A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency14" value="B" id="fleuncy14B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning14" value="A" id="meaning14A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning14" value="B" id="meaning14B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim14" value="A" id="dissim14A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim14" value="B" id="dissim14B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input15}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa15}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb15}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency15" value="A" id="fluency15A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency15" value="B" id="fleuncy15B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning15" value="A" id="meaning15A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning15" value="B" id="meaning15B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim15" value="A" id="dissim15A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim15" value="B" id="dissim15B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input16}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa16}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb16}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency16" value="A" id="fluency16A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency16" value="B" id="fleuncy16B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning16" value="A" id="meaning16A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning16" value="B" id="meaning16B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim16" value="A" id="dissim16A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim16" value="B" id="dissim16B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input17}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa17}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb17}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency17" value="A" id="fluency17A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency17" value="B" id="fleuncy17B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning17" value="A" id="meaning17A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning17" value="B" id="meaning17B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim17" value="A" id="dissim17A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim17" value="B" id="dissim17B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input18}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa18}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb18}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency18" value="A" id="fluency18A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency18" value="B" id="fleuncy18B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning18" value="A" id="meaning18A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning18" value="B" id="meaning18B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim18" value="A" id="dissim18A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim18" value="B" id="dissim18B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input19}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa19}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb19}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency19" value="A" id="fluency19A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency19" value="B" id="fleuncy19B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning19" value="A" id="meaning19A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning19" value="B" id="meaning19B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim19" value="A" id="dissim19A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim19" value="B" id="dissim19B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input20}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa20}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb20}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency20" value="A" id="fluency20A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency20" value="B" id="fleuncy20B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning20" value="A" id="meaning20A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning20" value="B" id="meaning20B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim20" value="A" id="dissim20A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim20" value="B" id="dissim20B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input21}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa21}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb21}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency21" value="A" id="fluency21A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency21" value="B" id="fleuncy21B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning21" value="A" id="meaning21A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning21" value="B" id="meaning21B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim21" value="A" id="dissim21A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim21" value="B" id="dissim21B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input22}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa22}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb22}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency22" value="A" id="fluency22A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency22" value="B" id="fleuncy22B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning22" value="A" id="meaning22A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning22" value="B" id="meaning22B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim22" value="A" id="dissim22A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim22" value="B" id="dissim22B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input23}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa23}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb23}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency23" value="A" id="fluency23A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency23" value="B" id="fleuncy23B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning23" value="A" id="meaning23A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning23" value="B" id="meaning23B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim23" value="A" id="dissim23A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim23" value="B" id="dissim23B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input24}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa24}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb24}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency24" value="A" id="fluency24A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency24" value="B" id="fleuncy24B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning24" value="A" id="meaning24A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning24" value="B" id="meaning24B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim24" value="A" id="dissim24A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim24" value="B" id="dissim24B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input25}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa25}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb25}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency25" value="A" id="fluency25A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency25" value="B" id="fleuncy25B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning25" value="A" id="meaning25A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning25" value="B" id="meaning25B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim25" value="A" id="dissim25A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim25" value="B" id="dissim25B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input26}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa26}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb26}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency26" value="A" id="fluency26A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency26" value="B" id="fleuncy26B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning26" value="A" id="meaning26A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning26" value="B" id="meaning26B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim26" value="A" id="dissim26A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim26" value="B" id="dissim26B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input27}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa27}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb27}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency27" value="A" id="fluency27A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency27" value="B" id="fleuncy27B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning27" value="A" id="meaning27A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning27" value="B" id="meaning27B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim27" value="A" id="dissim27A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim27" value="B" id="dissim27B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input28}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa28}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb28}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency28" value="A" id="fluency28A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency28" value="B" id="fleuncy28B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning28" value="A" id="meaning28A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning28" value="B" id="meaning28B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim28" value="A" id="dissim28A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim28" value="B" id="dissim28B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input29}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa29}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb29}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency29" value="A" id="fluency29A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency29" value="B" id="fleuncy29B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning29" value="A" id="meaning29A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning29" value="B" id="meaning29B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim29" value="A" id="dissim29A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim29" value="B" id="dissim29B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input30}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa30}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb30}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency30" value="A" id="fluency30A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency30" value="B" id="fleuncy30B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning30" value="A" id="meaning30A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning30" value="B" id="meaning30B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim30" value="A" id="dissim30A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim30" value="B" id="dissim30B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="card my-4">
+    <div class="card-header">
+
+        <p class="m-0">Original:  <strong>"${input31}"</strong></p>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-6">
+            <br/>
+            <br/>
+                <div class="row">
+                    System A: &nbsp;
+                    <strong>"${outputa31}"</strong>
+                </div>
+                <br/>
+                <div class="row">
+                    System B: &nbsp;
+                    <strong> "${outputb31}"</strong>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Most fluent
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency31" value="A" id="fluency31A"> A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="fluency31" value="B" id="fleuncy31B"> B
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-2 form-group text-center">
+                Closest in meaning
+                <br/>
+            <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning31" value="A" id="meaning31A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="meaning31" value="B" id="meaning31B" > B
+                    </label>
+                </div>
+            </div>
+
+
+
+            <div class="col-2 form-group text-center">
+                More dissimilar words/phrasing
+                <br/>
+                
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim31" value="A" id="dissim31A" > A
+                    </label>
+                    <label class="btn btn-info px-3">
+                        <input type="radio" name="dissim31" value="B" id="dissim31B" > B
+                    </label>
+                </div> 
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<hr/>
+
+
+<div class="alert alert-danger" role="alert" id="error-wrapper">
+    <p id="error_message">&nbsp;</p>
+</div>
+
+<!-- Reproduction Added HTML Submit button -->
+<p hidden class="hidden">This is HiT: </p><p hidden class="hidden" id="task_id">${task_id}</p>
+<button class="btn btn-success px-3" id="submit-button">Submit</button>
+
+
+</div>
+<!-- add some validation code --><script type='text/javascript'>
+window.onload = function() { 
+    $('#error-wrapper').hide();
+    document.getElementById('submitButton').setAttribute('onclick', 'return validateForm()'); 
+}
+
+function getCheckValue(checkName)
+{
+	var genders = document.getElementsByName(checkName);
+
+	for(var i = 0; i < genders.length; i++) {
+	   if(genders[i].checked == true) {
+	       return genders[i].value;
+	   }
+ 	}
+	return ""
+}
+
+function checkScores() {
+    if (!document.getElementById('consent').checked)
+    {
+        alert('You cannot submit this HIT without giving your explicit consent!');
+        return false;
+    }
+    if(getCheckValue('meaningex0') != 'A' || getCheckValue('dissimex0') != 'A' || getCheckValue('meaningex1') != 'A' || getCheckValue('dissimex1') != 'B' || getCheckValue('fluencyex0') != 'B' || getCheckValue('fluencyex1') != 'B')
+    {
+        alert('You must get the examples correct!')
+        return false;
+    }
+    
+	// grammar - mean - simi
+	var cnames = [ "meaning", "dissim", "fluency"]; //"grammar",
+	var actual_names = ["Meaning", "Dissimilarity", "Fluency"] //"Fluency", 
+	
+	var N_sent = 32;
+	for(var i = 0; i < N_sent; i ++)
+	{
+        for(var k = 0; k < cnames.length; k ++)
+        {
+            checkName = cnames[k] + i;
+            // alert(checkName);
+            checkValue = getCheckValue(checkName);
+            if(checkValue == "")
+            {
+                alert("Evaluation for Task " + (i+1) + " is not finished! (" + actual_names[k] + " is empty!)");
+                document.getElementById("error_message").innerHTML = "\<font color=\"red\"\>Evaluation for Task " 
+                    + (i+1) + " is not finished! (" + actual_names[k] + " is empty!)\<\/font\>";
+                $('#error-wrapper').show()
+                return false;
+            }
+        }
+	}
+	return true;
+}
+
+function validateForm() {
+	return checkScores();
+}
+
+</script>
+
+
+<!-- Reproduction added JS -->
+<script>
+
+function collectData() {
+  var cnames = ["meaning", "dissim", "fluency"];
+  var N_sent = 32;
+  var data = {};
+  var task_id = document.getElementById("task_id").innerHTML;
+
+  data["task_id"] = task_id; // add task_id to data
+
+  for (var i = 0; i < N_sent; i++) {
+    data[i] = {};
+    for (var k = 0; k < cnames.length; k++) {
+      var checkName = cnames[k] + i;
+      var checkValue = getCheckValue(checkName);
+      data[i][cnames[k]] = checkValue;
+    }
+  }
+
+  return JSON.stringify(data);
+}
+
+
+async function sendData() {
+  if (!checkScores()) {
+    return; // Do not send data if checkScores() returns false
+  }
+
+  const data = collectData();
+  const url = "/"; // Replace with your server URL
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: data,
+    });
+
+    if (response.status === 200) {
+      const jsonResponse = await response.json();
+      console.log("Data sent successfully", jsonResponse);
+        alert("We have received your submission. Thank you for your participation!");
+        window.location.href = "https://app.prolific.co/submissions/complete?cc=12345"; // Replace with your Prolific completion URL
+    } else {
+      console.log("Failed to send data", response.status);
+    }
+  } catch (error) {
+    console.error("There was a problem sending the data", error);
+  }
+}
+
+
+document.getElementById("submit-button").addEventListener("click", sendData);
+
+</script>
