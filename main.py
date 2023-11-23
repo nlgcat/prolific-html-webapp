@@ -5,7 +5,6 @@
 # There can be multiple variables - which should be defined in the python code to match the variable names in the csv file.
 import json
 from datetime import datetime
-
 from flask import Flask, render_template, request, redirect, url_for, render_template_string
 import csv
 import pandas as pd
@@ -13,15 +12,19 @@ import re
 import uuid as uuid_lib
 import os
 
+
+#TODO: REFRESH SHOULD NOT ALLOCATE NEW TASK - IT SHOULD JUST REFRESH THE CURRENT TASK and not increment the counter
+#TODO: TASK ONCE COMPLETED SHOULD NOT BE ABLE TO BE MARKED AS ABANDONED
+#TODO: SAVE TO FILE RATHER THAN JSON - WE DONT REALLY WANT IT SAVED IN MEMORY - WE WANT TO BE ABLE TO RESTART THE SERVER AND NOT LOSE DATA
+
+MAX_TIME = 3600  # Maximum time in seconds that a task can be assigned to a participant before it is abandoned
+
 # Load the data from the csv file into a pandas dataframe
 df = pd.read_csv('data.csv')
-
 # Create a list of the column names in the csv file
 column_names = df.columns.values.tolist()
-
-#print(column_names)
-
-# Create a list of dictionaries, where each dictionary is a row in the csv file
+# Create a dictionary of tasks, where each task is a row in the csv file
+tasks = {i: {"completed_count": 0, "participants": [], "assigned_times": []} for i in range(len(df))}
 
 app = Flask(__name__)
 
@@ -34,6 +37,8 @@ def preprocess_html(html_content, df, task_id=-1):
 
     return html_content
 
+
+# Routes
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -53,6 +58,12 @@ def index():
         with open(file_path, 'w') as outfile:
             json.dump(request.json, outfile)
 
+        # Update the completed_count for the task
+        if task_id in tasks:
+            tasks[task_id]["completed_count"] += 1
+            # Ensure that completed_count does not exceed 3
+            #tasks[task_id]["completed_count"] = min(tasks[task_id]["completed_count"], 3) # hiding this as it should never be more than 3, and we want to know if that happens.
+
         return "OK", 200
     else:
         return "Nothing Here.", 200
@@ -60,18 +71,13 @@ def index():
 
 @app.route('/row/<int:row_id>', methods=['GET', 'POST'])
 def row(row_id):
-
     # Read the HTML template file
     with open('templates/interface.html', 'r') as html_file:
         html_content = html_file.read()
-
     # Preprocess the HTML content
     processed_html = preprocess_html(html_content, df.iloc[[row_id]], row_id)
-
     return render_template_string(processed_html)
 
-
-tasks = {i: {"count": 0, "participants": [], "assigned_count": 0} for i in range(len(df))}
 
 # Study route, get PROLIFIC_PID, STUDY_ID and SESSION_ID from URL parameters
 @app.route('/study/')
@@ -82,30 +88,16 @@ def study():
     study_id = request.args.get('STUDY_ID')
     session_id = request.args.get('SESSION_ID')
 
-    # Find a task that has not been completed
-
-    # Generate the task page with prolific_pid, study_id and session_id as hidden fields
-
-    # Return the task page
-
-    # Need to remember that each task (row) needs to be completed exactly three times by different participants
-    # So we need to keep track of how many times each task has been completed as well as which participants have completed each task
-    # We also need to keep track of how many times a task has been completed. If it has been completed three times, then we need to move on to the next task.
-
-    # We could also automatically run attention checks on the data to check for bots and other issues. If the check fails, we can save JSON into failed folder.
-    # At that point we won't rerun the task. We will wait until the rest of the tasks have been completed and then rerun the failed tasks together.
-
-    # When we get a submission, we should also be storing the prolific_pid, study_id and session_id in the JSON file.
-
     # Read the HTML template file
     with open('templates/interface.html', 'r') as html_file:
         html_content = html_file.read()
 
     # Find a task that has been assigned less than three times
     for task_id, task_info in tasks.items():
-        if task_info["assigned_count"] < 3:
-            # Assign the task to the user
-            tasks[task_id]["assigned_count"] += 1
+        if len(task_info["participants"]) < 3:
+            # Task found, assign the task to the user
+            tasks[task_id]["participants"].append(prolific_pid)
+            tasks[task_id]["assigned_times"].append(datetime.now())
             break
     else:
         return "All tasks have been assigned three times.", 200
@@ -123,6 +115,39 @@ def study():
 def aloced():
     return tasks
 
+
+# Check for tasks that have been assigned for more than 1 hour and then open them up again for participants to complete
+@app.route('/abdn')
+def check_abandonment():
+    print("Checking for abandoned tasks...")
+    abdnd = []
+    current_time = datetime.now()
+
+    for task_id, task_info in list(tasks.items()):
+        # Iterate backward through the assigned_times
+        for i in range(len(task_info['assigned_times']) - 1, -1, -1):
+            assigned_time = task_info['assigned_times'][i]
+            time_diff = (current_time - assigned_time).total_seconds()
+
+            # If the time difference is more than 1 hour, remove the participant and time
+            if time_diff > 3600:
+                print(f"Removing participant {task_info['participants'][i]} from task {task_id}")
+                task_info['assigned_times'].pop(i)
+                task_info['participants'].pop(i)
+                abdnd.append(task_id)
+
+    return "Abandoned tasks: " + str(abdnd), 200
+
+
+# CLI Entry Point (for testing) - python main.py
+
 if __name__ == '__main__':
     app.run(debug=True)
 
+# Scheduler
+
+# Run the check_abandonment function every hour
+from apscheduler.schedulers.background import BackgroundScheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=check_abandonment, trigger="interval", seconds=MAX_TIME)
+scheduler.start()
