@@ -17,17 +17,21 @@ import os
 #TODO: TASK ONCE COMPLETED SHOULD NOT BE ABLE TO BE MARKED AS ABANDONED
 #TODO: SAVE TO FILE RATHER THAN JSON - WE DONT REALLY WANT IT SAVED IN MEMORY - WE WANT TO BE ABLE TO RESTART THE SERVER AND NOT LOSE DATA
 
-MAX_TIME = 3600  # Maximum time in seconds that a task can be assigned to a participant before it is abandoned
+MAX_TIME = 3600  # Maximum time in seconds that a task can be assigned to a participant before it is abandoned - 1 hour = 3600 seconds
+                 # Should probably note the 1hr limit on the interface/instructions. And could allow JS to flag up a warning if the time is getting close to 1hr. - Future work.
 
 # Load the data from the csv file into a pandas dataframe
 df = pd.read_csv('data.csv')
 # Create a list of the column names in the csv file
 column_names = df.columns.values.tolist()
+
 # Create a dictionary of tasks, where each task is a row in the csv file
+# This should probably be saved to a file rather than in memory, so that we can restart the server and not lose data.
 tasks = {i: {"completed_count": 0, "participants": [], "assigned_times": []} for i in range(len(df))}
 
-app = Flask(__name__)
+app = Flask(__name__) # Create the flask app
 
+# MTurk template replacement tokens is different to Jinja2, so we just do it manually here.
 def preprocess_html(html_content, df, task_id=-1):
 
     for column_name in column_names:
@@ -40,6 +44,8 @@ def preprocess_html(html_content, df, task_id=-1):
 
 # Routes
 
+# This is the index route, which will just say nothing here. If it gets a POST request, it will save the HIT response JSON to a file.
+# NOTE: The HTML interfaces should be updated with a button that compiles the answers as a JSON object and POSTS to this app.
 @app.route('/', methods=['GET', 'POST'])
 def index():
 
@@ -68,7 +74,7 @@ def index():
     else:
         return "Nothing Here.", 200
 
-
+# This route is used for testing the interface on specific rows of the csv file
 @app.route('/row/<int:row_id>', methods=['GET', 'POST'])
 def row(row_id):
     # Read the HTML template file
@@ -80,6 +86,8 @@ def row(row_id):
 
 
 # Study route, get PROLIFIC_PID, STUDY_ID and SESSION_ID from URL parameters
+# This route will assign a task to a participant and return the HTML interface for that task
+# It *should* be updated to allow the participant to continue where they left off if they refresh the page - this will be implemented using the PROLIFIC_PID searching on pending tasks.
 @app.route('/study/')
 def study():
 
@@ -111,12 +119,14 @@ def study():
 
     #return "no", 400 # TODO: Remove this line
 
+# This route is used for testing - it will return the tasks dictionary showing the number of participants assigned to each task
 @app.route('/tasksallocated')
 def aloced():
     return tasks
 
 
-# Check for tasks that have been assigned for more than 1 hour and then open them up again for participants to complete
+# Check for tasks that have been assigned for more than 1 hour and then open them up again for participants to complete. Code at bottom of file will make this run every hour.
+# The route is set up for testing to manually check for abandoned tasks. It will return a list of abandoned tasks that have been opened up again.
 @app.route('/abdn')
 def check_abandonment():
     print("Checking for abandoned tasks...")
@@ -143,6 +153,7 @@ def check_abandonment():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 # Scheduler
 
