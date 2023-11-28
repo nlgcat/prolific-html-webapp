@@ -12,6 +12,8 @@ import re
 import uuid as uuid_lib
 import os
 
+import DataManager as dm
+
 
 #TODO: REFRESH SHOULD NOT ALLOCATE NEW TASK - IT SHOULD JUST REFRESH THE CURRENT TASK and not increment the counter
 #TODO: TASK ONCE COMPLETED SHOULD NOT BE ABLE TO BE MARKED AS ABANDONED
@@ -27,7 +29,7 @@ column_names = df.columns.values.tolist()
 
 # Create a dictionary of tasks, where each task is a row in the csv file
 # This should probably be saved to a file rather than in memory, so that we can restart the server and not lose data.
-tasks = {i: {"completed_count": 0, "participants": [], "assigned_times": []} for i in range(len(df))}
+#tasks = {i: {"completed_count": 0, "participants": [], "assigned_times": []} for i in range(len(df))}
 
 app = Flask(__name__) # Create the flask app
 
@@ -46,6 +48,8 @@ def preprocess_html(html_content, df, task_id=-1):
 
 # This is the index route, which will just say nothing here. If it gets a POST request, it will save the HIT response JSON to a file.
 # NOTE: The HTML interfaces should be updated with a button that compiles the answers as a JSON object and POSTS to this app.
+# TODO: Validate submission is JSON and has required fields (task_id, prolific_pid, etc)
+# TODO: Make sure database isnt locked after POST request
 @app.route('/', methods=['GET', 'POST'])
 def index():
 
@@ -55,22 +59,19 @@ def index():
 
         # Save JSON to file with task_id as the folder and uuid as the filename
         task_id = request.json['task_id']
+        prolific_pid = request.json['prolific_pid']
         folder_path = os.path.join('data', str(task_id))
         os.makedirs(folder_path, exist_ok=True)  # Create folder if it doesn't exist
 
-        uuid = str(uuid_lib.uuid4())
-        file_path = os.path.join(folder_path, f"{uuid}.json")
+        file_path = os.path.join(folder_path, f"{task_id}.json")
 
         with open(file_path, 'w') as outfile:
             json.dump(request.json, outfile)
 
-        # Update the completed_count for the task
-        if task_id in tasks:
-            tasks[task_id]["completed_count"] += 1
-            # Ensure that completed_count does not exceed 3
-            #tasks[task_id]["completed_count"] = min(tasks[task_id]["completed_count"], 3) # hiding this as it should never be more than 3, and we want to know if that happens.
-
-        return "OK", 200
+        # Complete the task
+        print(task_id, request.json, prolific_pid)
+        dm.complete_task(task_id, str(request.json), prolific_pid)
+        return {"result":"OK"}, 200
     else:
         return "Nothing Here.", 200
 
@@ -93,36 +94,43 @@ def study():
 
     # Get PROLIFIC_PID, STUDY_ID and SESSION_ID from URL parameters
     prolific_pid = request.args.get('PROLIFIC_PID')
-    study_id = request.args.get('STUDY_ID')
     session_id = request.args.get('SESSION_ID')
 
     # Read the HTML template file
     with open('templates/interface.html', 'r') as html_file:
         html_content = html_file.read()
 
-    # Find a task that has been assigned less than three times
-    for task_id, task_info in tasks.items():
-        if len(task_info["participants"]) < 3:
-            # Task found, assign the task to the user
-            tasks[task_id]["participants"].append(prolific_pid)
-            tasks[task_id]["assigned_times"].append(datetime.now())
-            break
+    # Allocate task or find already allocated task
+    if prolific_pid is None or session_id is None:
+        return "PROLIFIC_PID and SESSION_ID are required parameters", 400
     else:
-        return "All tasks have been assigned three times.", 200
+        task_id, task_number = dm.allocate_task(prolific_pid, session_id)
 
-    html_content = preprocess_html(html_content, df.iloc[[task_id]], task_id)
-    html_content += f'<input type="hidden" name="prolific_pid" value="{prolific_pid}">'
-    html_content += f'<input type="hidden" name="study_id" value="{study_id}">'
-    html_content += f'<input type="hidden" name="session_id" value="{session_id}">'
+    # If no task is available, return a message
+    if task_id is None:
+        return "No tasks available", 400
+
+    html_content = preprocess_html(html_content, df.iloc[[task_number]], task_id) # Params: html_content, df, task_id=-1
+    html_content += f'<input type="hidden" id="prolific_pid" value="{prolific_pid}">'
+    html_content += f'<input type="hidden" id="session_id" value="{session_id}">'
     return render_template_string(html_content)
-    
 
-    #return "no", 400 # TODO: Remove this line
 
 # This route is used for testing - it will return the tasks dictionary showing the number of participants assigned to each task
 @app.route('/tasksallocated')
 def aloced():
+
+    tasks = dm.get_all_tasks() # TODO: Replace this line
+
     return tasks
+
+# Show a specific task_id's result in the database
+@app.route('/results/<task_id>')
+def results(task_id):
+    result = dm.get_specific_result(str(task_id))
+    if result is None:
+        return "No result found for task_id: " + str(task_id), 400
+    return str(result)
 
 
 # Check for tasks that have been assigned for more than 1 hour and then open them up again for participants to complete. Code at bottom of file will make this run every hour.
@@ -130,23 +138,11 @@ def aloced():
 @app.route('/abdn')
 def check_abandonment():
     print("Checking for abandoned tasks...")
-    abdnd = []
-    current_time = datetime.now()
+    dm.expire_tasks(MAX_TIME)
 
-    for task_id, task_info in list(tasks.items()):
-        # Iterate backward through the assigned_times
-        for i in range(len(task_info['assigned_times']) - 1, -1, -1):
-            assigned_time = task_info['assigned_times'][i]
-            time_diff = (current_time - assigned_time).total_seconds()
+    tasks = dm.get_all_tasks()
 
-            # If the time difference is more than 1 hour, remove the participant and time
-            if time_diff > 3600:
-                print(f"Removing participant {task_info['participants'][i]} from task {task_id}")
-                task_info['assigned_times'].pop(i)
-                task_info['participants'].pop(i)
-                abdnd.append(task_id)
-
-    return "Abandoned tasks: " + str(abdnd), 200
+    return tasks, 200
 
 
 # CLI Entry Point (for testing) - python main.py

@@ -2761,11 +2761,16 @@ function validateForm() {
 
 function collectData() {
   var cnames = ["meaning", "dissim", "fluency"];
-  var N_sent = 32;
+  var N_sent = 32; // number of sentences
   var data = {};
+
   var task_id = document.getElementById("task_id").innerHTML;
+  var prolific_pid = document.getElementById("prolific_pid").value;
+  var session_id = document.getElementById("session_id").value;
 
   data["task_id"] = task_id; // add task_id to data
+  data["prolific_pid"] = prolific_pid; // add prolific_id to data
+  data["session_id"] = session_id; // add session_id to data
 
   for (var i = 0; i < N_sent; i++) {
     data[i] = {};

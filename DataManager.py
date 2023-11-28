@@ -18,6 +18,7 @@ def create_connection(db_file='database.db'):
 # If not, it will find a task that has been assigned less than three times and assign it to the participant
 # If no tasks are available, it will return None
 # TODO: Must ensure this wont crash, use try/except and log errors
+# TODO: Make sure participant is not assigned the same task twice (check prolific_id against task_id in completed tasks)
 # Returns: (task_id, task_number) or None if no tasks are available
 def allocate_task(prolific_id, session_id):
     conn = create_connection()
@@ -89,6 +90,28 @@ def complete_task(id, json_string, prolific_id):
     conn.commit()
     conn.close()
 
+def get_all_tasks():
+    try:
+        with create_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM tasks")
+            tasks = cursor.fetchall()
+            return tasks
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+        return None
+
+def get_specific_result(result_id):
+    try:
+        with create_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM results WHERE id=?", (result_id,))
+            result = cursor.fetchone()
+            return result
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+        return None
+
 
 #expire_tasks()
 #complete_task('9f28d264-434b-433d-abcf-4124bb97c019', '{"test": 1}', '1234')
@@ -107,3 +130,4 @@ def complete_task(id, json_string, prolific_id):
 
 
 
+#print(get_specific_result('8cc2c7b2-83e3-4a7d-aeb2-0efc0ce9cf39'))
