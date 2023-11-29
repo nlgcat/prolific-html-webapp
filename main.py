@@ -14,6 +14,8 @@ import os
 
 import DataManager as dm
 
+# TODO: Check why dataase would be closed when allocating task
+
 MAX_TIME = 3600  # Maximum time in seconds that a task can be assigned to a participant before it is abandoned - 1 hour = 3600 seconds
                  # Should probably note the 1hr limit on the interface/instructions. And could allow JS to flag up a warning if the time is getting close to 1hr. - Future work.
 
@@ -65,7 +67,12 @@ def index():
 
         # Complete the task
         print(task_id, request.json, prolific_pid)
-        dm.complete_task(task_id, str(request.json), prolific_pid)
+
+        complete = dm.complete_task(task_id, str(request.json), prolific_pid)
+
+        if complete == -1:
+            return {"result":"Something went wrong? Is this your task?"}, 500
+
         return {"result":"OK"}, 200
     else:
         return "Nothing Here.", 200

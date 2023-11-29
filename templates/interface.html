@@ -2809,7 +2809,7 @@ async function sendData() {
         alert("We have received your submission. Thank you for your participation!");
         window.location.href = "https://app.prolific.co/submissions/complete?cc=12345"; // Replace with your Prolific completion URL
     } else {
-      console.log("Failed to send data", response.status);
+      console.log("Failed to send data: " + response.statusText, response.status);
     }
   } catch (error) {
     console.error("There was a problem sending the data", error);

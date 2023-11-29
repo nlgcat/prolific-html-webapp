@@ -1,9 +1,8 @@
 import sqlite3
 from datetime import datetime
 
-# TODO: All functions should be using with create_connection() as conn: and conn.commit() and conn.close() to ensure the connection is closed properly
 # TODO: Race conditions should be investigated - handled by using transactions and locking
-# TODO:
+# TODO: "An error occurred trying to expire tasks: Cannot operate on a closed database." after task not completing (/failing to complete task in db) to participant as a result of them having not been the allocated pid
 
 def create_connection(db_file='database.db'):
     """ create a database connection to a SQLite database """
@@ -40,10 +39,8 @@ def allocate_task(prolific_id, session_id):
                     # Task found, assign the task to the user
                     cursor.execute("UPDATE tasks SET status='allocated', prolific_id=?, time_allocated=?, session_id=? WHERE id=?", (prolific_id, datetime.now(), session_id, task_id))
                     conn.commit()
-                    conn.close()
                     return task_id, task_number
             else:
-                conn.close()
                 return None
 
     except sqlite3.Error as e:
@@ -77,15 +74,23 @@ def expire_tasks(time_limit=3600):
                     cursor.execute("UPDATE tasks SET status='waiting', prolific_id = NULL, time_allocated = NULL, session_id = NULL WHERE id=?", (task_id,))
             # Commit the changes and close the connection
             conn.commit()
-            conn.close()
     except sqlite3.Error as e:
         print(f"An error occurred trying to expire tasks: {e}")
 
-# TODO: Make sure task is allocated to participant before completing it (check status='allocated')
+# TODO: Make sure task is allocated to participant before completing it (check status='allocated') - working on this, overkill but also the fix causes database to be closed.
+# TODO: Removing the conn.close() is the suggested fix. It seems to be working.
 def complete_task(id, json_string, prolific_id):
     try:
         with create_connection() as conn:
             cursor = conn.cursor()
+
+            # Check if the task is allocated to the participant
+            cursor.execute("SELECT id FROM tasks WHERE id=? AND prolific_id=?", (id, prolific_id))
+            task = cursor.fetchone()
+            if task is None:
+                print("Task not allocated to participant... not completing tasks.")
+                #print(f"Task:" + str(json_string)) # This is where this would be logged - we dont need to unless debugging
+                return -1
 
             # Update the task status to 'completed'
             cursor.execute("UPDATE tasks SET status='completed' WHERE id=?", (id,))
@@ -95,7 +100,6 @@ def complete_task(id, json_string, prolific_id):
             # Commit the changes and close the connection
 
             conn.commit()
-            conn.close()
 
     except sqlite3.Error as e:
         print(f"An error occurred trying to complete a task.: {e}")
