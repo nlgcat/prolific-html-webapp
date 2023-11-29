@@ -14,11 +14,6 @@ import os
 
 import DataManager as dm
 
-
-#TODO: REFRESH SHOULD NOT ALLOCATE NEW TASK - IT SHOULD JUST REFRESH THE CURRENT TASK and not increment the counter
-#TODO: TASK ONCE COMPLETED SHOULD NOT BE ABLE TO BE MARKED AS ABANDONED
-#TODO: SAVE TO FILE RATHER THAN JSON - WE DONT REALLY WANT IT SAVED IN MEMORY - WE WANT TO BE ABLE TO RESTART THE SERVER AND NOT LOSE DATA
-
 MAX_TIME = 3600  # Maximum time in seconds that a task can be assigned to a participant before it is abandoned - 1 hour = 3600 seconds
                  # Should probably note the 1hr limit on the interface/instructions. And could allow JS to flag up a warning if the time is getting close to 1hr. - Future work.
 
@@ -120,7 +115,7 @@ def study():
 @app.route('/tasksallocated')
 def aloced():
 
-    tasks = dm.get_all_tasks() # TODO: Replace this line
+    tasks = dm.get_all_tasks()
 
     return tasks
 
@@ -144,17 +139,17 @@ def check_abandonment():
 
     return tasks, 200
 
+# Scheduler
+
+# Run the check_abandonment function every hour - this has to be before the app.run() call
+from apscheduler.schedulers.background import BackgroundScheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=check_abandonment, trigger="interval", seconds=MAX_TIME)
+scheduler.start()
+
 
 # CLI Entry Point (for testing) - python main.py
 
 if __name__ == '__main__':
     app.run(debug=True)
 
-
-# Scheduler
-
-# Run the check_abandonment function every hour
-from apscheduler.schedulers.background import BackgroundScheduler
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=check_abandonment, trigger="interval", seconds=MAX_TIME)
-scheduler.start()

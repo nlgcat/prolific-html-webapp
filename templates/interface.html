@@ -14,6 +14,7 @@
         <li>You must complete the examples correctly to submit the HIT.</li>
         <li>You have to complete the ratings for all sentences.<span style="color: rgb(255, 0, 0);"><b> All fields are required.</b></span></li>
         <li>Some of the tasks are control samples! Please read the instructions carefully. We reserve the right to reject the HIT if these are not completed correctly.</li>
+        <li>You have no longer than 60 minutes to complete the task and press the submit button at the bottom of the page. The HIT will be automatically rejected and closed after 60 minutes.</li>
     </ul>
 </div>
 
@@ -34,7 +35,7 @@
 <h4>Instructions</h4>
 <p class="m-2">In this task you will read roughly thirty examples of sentences and two paraphrases created by a computer program. The program aims to rewrite the sentence so that it means the same thing, but using different words and/or different word order. </p>
 
-<p class="m-2"><strong>Please read all the sentences carefully</strong>, this should take you about 20 minutes (if you do the task very quickly your HIT will be rejected).</p>
+<p class="m-2"><strong>Please read all the sentences carefully</strong>, this should take you about 20 minutes (if you do the task very quickly or take longer than an hour (60 mins) your HIT will be rejected).</p>
 <p class="m-2">You will be asked to choose which system performs better, for three aspects of the paraphrases:</p>
 <ol>
     <li>Which system output is the most <strong>fluent and grammatical</strong>?</li>
@@ -2817,5 +2818,62 @@ async function sendData() {
 
 
 document.getElementById("submit-button").addEventListener("click", sendData);
+
+</script>
+
+<script>
+    // This script tag will start a countdown to alert the worker when 50 minutes have passed.
+    // The worker will have 10 minutes to finish the task before the HIT is automatically submitted.
+    function startWarningCountdown() {
+        var minutes = 0; //var minutes = 50;
+        var seconds = 10;
+        var totalSeconds = minutes * 60 + seconds;
+
+        var interval = setInterval(function () {
+            seconds--;
+            if (seconds < 0) {
+                minutes--;
+                seconds = 59;
+            }
+
+            if (minutes < 0) {
+                clearInterval(interval);
+                alert("50 minutes have passed! You have 10 minutes to finish the task! If you do not finish in time, your answers will not be used and you will not be paid.");
+            }
+        }, 1000);
+    }
+        function startFailedCountdown() {
+        var minutes = 0; //var minutes = 60;
+        var seconds = 15;
+        var totalSeconds = minutes * 60 + seconds;
+
+        var interval = setInterval(function() {
+            seconds--;
+            if (seconds < 0) {
+                minutes--;
+                seconds = 59;
+            }
+
+            if (minutes < 0) {
+
+                // Disable the submit button
+                document.getElementById("submit-button").disabled = true;
+                document.getElementById("submit-button").innerHTML = "You cannot submit this HIT anymore.";
+                document.getElementById("submit-button").classList.add("is-danger")
+
+                clearInterval(interval);
+
+                alert("The allocated time for this task has passed. Your answers will not be used and you will not be paid.");
+
+                // Redirect the worker to the Prolific app: https://app.prolific.com/
+                window.location.href = "https://app.prolific.co/";
+
+            }
+        }, 1000);
+    }
+
+startWarningCountdown();
+startFailedCountdown();
+
 
 </script>
