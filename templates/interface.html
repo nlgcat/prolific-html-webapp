@@ -2825,8 +2825,8 @@ document.getElementById("submit-button").addEventListener("click", sendData);
     // This script tag will start a countdown to alert the worker when 50 minutes have passed.
     // The worker will have 10 minutes to finish the task before the HIT is automatically submitted.
     function startWarningCountdown() {
-        var minutes = 0; //var minutes = 50;
-        var seconds = 10;
+        var minutes = 50; //var minutes = 50;
+        var seconds = 0;
         var totalSeconds = minutes * 60 + seconds;
 
         var interval = setInterval(function () {
@@ -2843,8 +2843,8 @@ document.getElementById("submit-button").addEventListener("click", sendData);
         }, 1000);
     }
         function startFailedCountdown() {
-        var minutes = 0; //var minutes = 60;
-        var seconds = 15;
+        var minutes = 60; //var minutes = 60;
+        var seconds = 0;
         var totalSeconds = minutes * 60 + seconds;
 
         var interval = setInterval(function() {
