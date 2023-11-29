@@ -97,9 +97,14 @@ def study():
 
     # Allocate task or find already allocated task
     if prolific_pid is None or session_id is None:
-        return "PROLIFIC_PID and SESSION_ID are required parameters", 400
+        return "PROLIFIC_PID and SESSION_ID are required parameters.", 400
     else:
         task_id, task_number = dm.allocate_task(prolific_pid, session_id)
+
+    # If there is a database error, return the error message and status code
+    if task_id == "Database Error - Please try again, if the problem persists contact us." and task_number == -1:
+        return task_id, 500
+
 
     # If no task is available, return a message
     if task_id is None:
