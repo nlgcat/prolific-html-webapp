@@ -61,6 +61,21 @@ def allocate_task(prolific_id, session_id):
 # This function will be run periodically and expire tasks that have been allocated for too long
 # eg 2023-11-27 15:45:30.123456
 def expire_tasks(time_limit=3600):
+    """
+    Expires tasks that have been allocated for longer than a specified time limit.
+
+    This function checks all tasks with the status 'allocated' and compares the
+    time they were allocated with the current time. If the time elapsed since
+    allocation is greater than the time limit, the task's status is reset to 'waiting'.
+
+    Parameters:
+    time_limit (int): The time limit in seconds. Tasks allocated for longer than this
+                      duration will be expired. Defaults to 3600 seconds (1 hour).
+
+    Returns:
+    None: The function doesn't return a value but updates the tasks in the database
+          if they exceed the time limit.
+    """
     try:
         with create_connection() as conn:
             cursor = conn.cursor()
@@ -90,6 +105,21 @@ def expire_tasks(time_limit=3600):
 # TODO: Make sure task is allocated to participant before completing it (check status='allocated') - working on this, maybe not needed.
 # Note: Removing the conn.close() is the suggested fix for DB locking with try except. Garbage collection will close the connection when the function ends.
 def complete_task(id, json_string, prolific_id):
+    """
+    Completes a task assigned to a participant and records the result.
+
+    This function checks if the task with the given ID is allocated to the participant
+    identified by their prolific ID. If so, it updates the task's status to 'completed'
+    and inserts the task result (provided as a JSON string) into the results table.
+
+    Parameters:
+    id (str): The ID of the task to be completed.
+    json_string (str): A JSON string representing the result of the task.
+    prolific_id (str): The ID of the participant who is completing the task.
+
+    Returns:
+    int: -1 if the task is not allocated to the participant, otherwise no explicit return value.
+    """
     try:
         with create_connection() as conn:
             cursor = conn.cursor()
@@ -115,6 +145,16 @@ def complete_task(id, json_string, prolific_id):
         print(f"An error occurred trying to complete a task.: {e}")
 
 def get_all_tasks():
+    """
+    Retrieves all tasks from the tasks table in the database.
+
+    This function queries the database for all entries in the tasks table.
+    It is intended to fetch every task, regardless of its status or other attributes.
+
+    Returns:
+    list: A list of tuples, where each tuple represents a task with all its database fields.
+          Returns None if a database error occurs.
+    """
     try:
         with create_connection() as conn:
             cursor = conn.cursor()
@@ -126,6 +166,20 @@ def get_all_tasks():
         return None
 
 def get_specific_result(result_id):
+    """
+    Retrieves a specific result from the results table based on the result ID.
+
+    This function is designed to query the database for a single entry in the results
+    table that matches the provided result ID. It returns the specific result associated
+    with that ID.
+
+    Parameters:
+    result_id (int): The ID of the result to be retrieved.
+
+    Returns:
+    tuple: A tuple representing the result with all its database fields, or None if
+           the result is not found or a database error occurs.
+    """
     try:
         with create_connection() as conn:
             cursor = conn.cursor()
