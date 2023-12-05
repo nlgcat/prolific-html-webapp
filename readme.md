@@ -33,7 +33,7 @@
     Note: this is not required for SessionID or ProlificID - as the preprocess function will add these to the data.
   3. Optional: Depending on your task, you may wish to include an alert for warning the worker when they have run out of time. 
     
-    ```JS
+```JS
      function startFailedCountdown() {
         var minutes = 60; //var minutes = 60;
         var seconds = 0;
@@ -64,6 +64,7 @@
         }, 1000);
     }
 
-    startFailedCountdown();```
+    startFailedCountdown();
+```
    
 You could also repeat this code to alert the worker when they have 10 minutes left, etc.
