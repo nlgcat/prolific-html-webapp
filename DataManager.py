@@ -2,8 +2,7 @@ import sqlite3
 from datetime import datetime
 
 # TODO: Race conditions should be investigated - handled by using transactions and locking
-# TODO: "An error occurred trying to expire tasks: Cannot operate on a closed database." after task not completing (/failing to complete task in db) to participant as a result of them having not been the allocated pid
-
+# TODO: What happens when a worker returns results that have not been allocated to them?
 def create_connection(db_file='database.db'):
     """ create a database connection to a SQLite database """
     conn = sqlite3.connect(db_file)
@@ -61,7 +60,6 @@ def allocate_task(prolific_id, session_id):
 
 # This function will be run periodically and expire tasks that have been allocated for too long
 # eg 2023-11-27 15:45:30.123456
-# TODO: Must work out where to set time_limit for whole study (eg 1 hour) - likely in main.py or a config.py
 def expire_tasks(time_limit=3600):
     try:
         with create_connection() as conn:
@@ -89,7 +87,7 @@ def expire_tasks(time_limit=3600):
     except sqlite3.Error as e:
         print(f"An error occurred trying to expire tasks: {e}")
 
-# TODO: Make sure task is allocated to participant before completing it (check status='allocated') - working on this, overkill but also the fix causes database to be closed.
+# TODO: Make sure task is allocated to participant before completing it (check status='allocated') - working on this, maybe not needed.
 # Note: Removing the conn.close() is the suggested fix for DB locking with try except. Garbage collection will close the connection when the function ends.
 def complete_task(id, json_string, prolific_id):
     try:
@@ -143,7 +141,6 @@ def get_specific_result(result_id):
 #complete_task('9f28d264-434b-433d-abcf-4124bb97c019', '{"test": 1}', '1234')
 
 
-
 # Allocate a task to a new participant
 #result = allocate_task("dummy11", "session1")
 #print("Test 1 Result:", result)
@@ -152,8 +149,5 @@ def get_specific_result(result_id):
 #id, task = allocate_task("dummy12", "session1")
 #complete_task(id, '{"test": 1}', 'dummy12')
 #print("Test 2 Result:", id)
-
-
-
 
 #print(get_specific_result('8cc2c7b2-83e3-4a7d-aeb2-0efc0ce9cf39'))
