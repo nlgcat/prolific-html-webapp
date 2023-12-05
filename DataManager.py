@@ -15,37 +15,49 @@ def create_connection(db_file='database.db'):
 # First the function will check if the participant has already been allocated a task (one that is not of status "completed") and return that task if so
 # If not, it will find a task that has been assigned less than three times and assign it to the participant
 # If no tasks are available, it will return None
-# TODO: Make sure participant is not assigned the same task twice (check prolific_id against task_id in completed tasks)
-# Returns: (task_id, task_number) or None if no tasks are available
 def allocate_task(prolific_id, session_id):
+    """
+    Allocates a task to a participant based on given criteria.
+
+    Parameters:
+    prolific_id (str): The ID of the participant.
+    session_id (str): The session ID.
+
+    Returns:
+    tuple: (task_id, task_number) if a task is allocated, None if no tasks are available,
+           or a message and -1 in case of a database error.
+    """
     try:
         with create_connection() as conn:
             cursor = conn.cursor()
 
-            # Check if the participant has already been allocated a task
+            # Check if the participant has an incomplete allocated task
             cursor.execute("SELECT id, task_number FROM tasks WHERE prolific_id=? AND status!='completed'", (prolific_id,))
             allocated_tasks = cursor.fetchall()
-            if len(allocated_tasks) > 0:
-                # Return the first allocated task
+            if allocated_tasks:
                 return allocated_tasks[0]
 
-            # Find a task that has been assigned less than three times
-            cursor.execute("SELECT id, task_number FROM tasks WHERE status='waiting'")
+            # Find a task that hasn't been assigned to this participant and has been assigned less than three times
+            cursor.execute("""
+                SELECT id, task_number FROM tasks 
+                WHERE status='waiting' AND task_number NOT IN (
+                    SELECT task_number FROM tasks WHERE prolific_id=? AND status='completed'
+                )
+            """, (prolific_id,))
             waiting_tasks = cursor.fetchall()
             for task_id, task_number in waiting_tasks:
                 cursor.execute("SELECT COUNT(*) FROM tasks WHERE task_number=? AND status='allocated'", (task_number,))
                 num_allocated = cursor.fetchone()[0]
                 if num_allocated < 3:
-                    # Task found, assign the task to the user
-                    cursor.execute("UPDATE tasks SET status='allocated', prolific_id=?, time_allocated=?, session_id=? WHERE id=?", (prolific_id, datetime.now(), session_id, task_id))
+                    cursor.execute("UPDATE tasks SET status='allocated', prolific_id=?, time_allocated=?, session_id=? WHERE id=?",
+                                   (prolific_id, datetime.utcnow(), session_id, task_id))
                     conn.commit()
                     return task_id, task_number
-            else:
-                return None
+            return None
 
     except sqlite3.Error as e:
-        print(f"An error occurred: {e}")
-        return "Database Error - Please try again, if the problem persists contact us.", -1 # This cannot be return code as 500 could be a valid task number
+        # Consider logging the error
+        return f"Database Error - {e}", -1
 
 # This function will be run periodically and expire tasks that have been allocated for too long
 # eg 2023-11-27 15:45:30.123456
@@ -78,7 +90,7 @@ def expire_tasks(time_limit=3600):
         print(f"An error occurred trying to expire tasks: {e}")
 
 # TODO: Make sure task is allocated to participant before completing it (check status='allocated') - working on this, overkill but also the fix causes database to be closed.
-# TODO: Removing the conn.close() is the suggested fix. It seems to be working.
+# Note: Removing the conn.close() is the suggested fix for DB locking with try except. Garbage collection will close the connection when the function ends.
 def complete_task(id, json_string, prolific_id):
     try:
         with create_connection() as conn:
@@ -89,7 +101,7 @@ def complete_task(id, json_string, prolific_id):
             task = cursor.fetchone()
             if task is None:
                 print("Task not allocated to participant... not completing tasks.")
-                #print(f"Task:" + str(json_string)) # This is where this would be logged - we dont need to unless debugging
+                #print(f"Task:" + str(json_string)) # This is where this would be logged - we don't need to unless debugging
                 return -1
 
             # Update the task status to 'completed'

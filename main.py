@@ -45,8 +45,7 @@ def preprocess_html(html_content, df, task_id=-1):
 
 # This is the index route, which will just say nothing here. If it gets a POST request, it will save the HIT response JSON to a file.
 # NOTE: The HTML interfaces should be updated with a button that compiles the answers as a JSON object and POSTS to this app.
-# TODO: Validate submission is JSON and has required fields (task_id, prolific_pid, etc)
-# TODO: Make sure database isnt locked after POST request
+# TODO: Validate submission is JSON and has required fields (task_id, prolific_pid, etc) else could crash
 @app.route('/', methods=['GET', 'POST'])
 def index():
 
@@ -91,6 +90,7 @@ def row(row_id):
 # Study route, get PROLIFIC_PID, STUDY_ID and SESSION_ID from URL parameters
 # This route will assign a task to a participant and return the HTML interface for that task
 # It *should* be updated to allow the participant to continue where they left off if they refresh the page - this will be implemented using the PROLIFIC_PID searching on pending tasks.
+# TODO: Some kind of handling for case where there are no tasks left for that worker - i.e there are tasks left but none that they haven't already completed
 @app.route('/study/')
 def study():
 
