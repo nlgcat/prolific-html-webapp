@@ -64,7 +64,6 @@
         }, 1000);
     }
 
-    startFailedCountdown();
-   ```
+    startFailedCountdown();```
    
 You could also repeat this code to alert the worker when they have 10 minutes left, etc.
