@@ -14,10 +14,9 @@ import os
 
 import DataManager as dm
 
-# TODO: Check why dataase would be closed when allocating task
-
 MAX_TIME = 3600  # Maximum time in seconds that a task can be assigned to a participant before it is abandoned - 1 hour = 3600 seconds
-                 # Should probably note the 1hr limit on the interface/instructions. And could allow JS to flag up a warning if the time is getting close to 1hr. - Future work.
+                 # Should probably note the 1hr limit on the interface/instructions.
+                 # NOTE: If you do not want to expire tasks, set this to a very large number, 0 will not work.
 
 # Load the data from the csv file into a pandas dataframe
 df = pd.read_csv('data.csv')
@@ -28,6 +27,7 @@ column_names = df.columns.values.tolist()
 # This should probably be saved to a file rather than in memory, so that we can restart the server and not lose data.
 #tasks = {i: {"completed_count": 0, "participants": [], "assigned_times": []} for i in range(len(df))}
 
+# TODO: Might require adding CORS headers to allow requests. See https://flask-cors.readthedocs.io/en/latest/
 app = Flask(__name__) # Create the flask app
 
 # MTurk template replacement tokens is different to Jinja2, so we just do it manually here.
@@ -145,7 +145,7 @@ def results(task_id):
 @app.route('/abdn')
 def check_abandonment():
     print("Checking for abandoned tasks...")
-    dm.expire_tasks(MAX_TIME)
+    dm.expire_tasks(MAX_TIME) # Do not update MAX_TIME manually, use MAX_TIME variable
 
     tasks = dm.get_all_tasks()
 
@@ -156,7 +156,7 @@ def check_abandonment():
 # Run the check_abandonment function every hour - this has to be before the app.run() call
 from apscheduler.schedulers.background import BackgroundScheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=check_abandonment, trigger="interval", seconds=MAX_TIME)
+scheduler.add_job(func=check_abandonment, trigger="interval", seconds=MAX_TIME) # Do not update seconds manually, use MAX_TIME
 scheduler.start()
 
 
