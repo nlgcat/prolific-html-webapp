@@ -1,0 +1,89 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<script src="{{url_for('static', filename='js/generic.js')}}"></script>
+
+<div class="container py-3">
+
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Please Note</h4>
+
+        <ul>
+            <li>You have to be an <span style="color: rgb(255, 0, 0);"><b>English Native Speaker</b></span>.</li>
+            <li>You must complete the examples correctly to submit the HIT.</li>
+            <li>You have to complete the ratings for all sentences.<span style="color: rgb(255, 0, 0);"><b> All fields are required.</b></span></li>
+            <li>Some of the tasks are control samples! Please read the instructions carefully. We reserve the right to reject the HIT if these are not completed correctly.</li>
+            <li>You have no longer than 60 minutes to complete the task and press the submit button at the bottom of the page. The HIT will be automatically rejected and closed after 60 minutes.</li>
+        </ul>
+    </div>
+
+    <h4>Informed Consent</h4>
+    <p class="m-1">Placeholder text</p>
+
+
+    <div class="form-group">
+      <div class="form-check">
+        <input type="checkbox" name="consent" id="consent" class="form-check-input" />
+        <label for="consent" class="form-check-label"> I understand the participant information and consent to participate in this study.</label>
+        </div>
+    </div>
+
+    <h4>Instructions</h4>
+    <p class="m-2">Placeholder text.</p>
+
+
+    <div class="card my-4">
+        <div class="card-header">
+            
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-10">
+                    <br/>
+                    <br/>
+                    <div class="row">
+                        <strong>System A: &nbsp;</strong>
+                        <p>"${outputa}"</p>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <strong>System B: &nbsp;</strong>
+                        <p>"${outputb}"</p>
+                    </div>
+                </div>
+
+                
+            </div>
+            <br />
+            <br />
+            <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                <strong>Which is most fluent?</strong>
+                <label class="btn btn-info px-3">
+                    <input type="radio" name="fluency_a" value="A" id="fluency_a"> A
+                </label>
+                <label class="btn btn-info px-3">
+                    <input type="radio" name="fluency_b" value="B" id="fleuncy_b"> B
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-danger" role="alert" id="error-wrapper">
+        <p id="error_message">&nbsp;</p>
+    </div>
+
+
+
+    <button class="btn btn-success px-3" id="submit-button">Submit</button>
+</div>
+
+<script type='text/javascript'>
+    // TODO - add some validation code
+    window.onload = function() { 
+        $('#error-wrapper').hide();
+        document.getElementById('submit-button').setAttribute('onclick', 'return validateForm()');
+        initPage();
+    }  
+</script>

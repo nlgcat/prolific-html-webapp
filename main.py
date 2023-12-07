@@ -1,5 +1,5 @@
 # This is the webapp for hosting Prolific surveys for the Edinburgh Napier University lab within the reprohum project.
-# The data is in csv format, containing the data from the survey. File name should be data.csv
+# The data is in csv format, containing the data from the survey. File name should be DATA variable
 # The user interface is the interface.html file, which is a template for the survey.
 # Each interface has the following structure ${outputb1} where inside the brackets is the name of the variable.
 # There can be multiple variables - which should be defined in the python code to match the variable names in the csv file.
@@ -12,14 +12,20 @@ import re
 import uuid as uuid_lib
 import os
 
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
+
 import DataManager as dm
 
 MAX_TIME = 3600  # Maximum time in seconds that a task can be assigned to a participant before it is abandoned - 1 hour = 3600 seconds
                  # Should probably note the 1hr limit on the interface/instructions.
                  # NOTE: If you do not want to expire tasks, set this to a very large number, 0 will not work.
 
+TEMPLATE = "example.html"
+DATA = "rotowire.csv"
+
 # Load the data from the csv file into a pandas dataframe
-df = pd.read_csv('data.csv')
+df = pd.read_csv(DATA)
 # Create a list of the column names in the csv file
 column_names = df.columns.values.tolist()
 
@@ -28,7 +34,10 @@ column_names = df.columns.values.tolist()
 #tasks = {i: {"completed_count": 0, "participants": [], "assigned_times": []} for i in range(len(df))}
 
 # TODO: Might require adding CORS headers to allow requests. See https://flask-cors.readthedocs.io/en/latest/
-app = Flask(__name__) # Create the flask app
+app = Flask(__name__,
+    static_url_path='', 
+    static_folder='static',
+    template_folder='templates') # Create the flask app
 
 # MTurk template replacement tokens is different to Jinja2, so we just do it manually here.
 def preprocess_html(html_content, df, task_id=-1):
@@ -41,6 +50,8 @@ def preprocess_html(html_content, df, task_id=-1):
     return html_content
 
 
+
+
 # Routes
 
 # This is the index route, which will just say nothing here. If it gets a POST request, it will save the HIT response JSON to a file.
@@ -51,7 +62,7 @@ def index():
 
     if request.method == 'POST':
         # Print JSON from POST request
-        print(request.json)
+        pp.pprint(request.json)
 
         # Save JSON to file with task_id as the folder and uuid as the filename
         task_id = request.json['task_id']
@@ -80,7 +91,7 @@ def index():
 @app.route('/row/<int:row_id>', methods=['GET', 'POST'])
 def row(row_id):
     # Read the HTML template file
-    with open('templates/interface.html', 'r') as html_file:
+    with open(f'templates/{TEMPLATE}', 'r') as html_file:
         html_content = html_file.read()
     # Preprocess the HTML content
     processed_html = preprocess_html(html_content, df.iloc[[row_id]], row_id)
@@ -99,7 +110,7 @@ def study():
     session_id = request.args.get('SESSION_ID')
 
     # Read the HTML template file
-    with open('templates/interface.html', 'r') as html_file:
+    with open(f'templates/{TEMPLATE}', 'r') as html_file:
         html_content = html_file.read()
 
     # Allocate task or find already allocated task
@@ -118,8 +129,9 @@ def study():
         return "No tasks available", 400
 
     html_content = preprocess_html(html_content, df.iloc[[task_number]], task_id) # Params: html_content, df, task_id=-1
-    html_content += f'<input type="hidden" id="prolific_pid" value="{prolific_pid}">'
-    html_content += f'<input type="hidden" id="session_id" value="{session_id}">'
+    html_content += f'<input type="hidden" id="prolific_pid" value="{prolific_pid}">\n'
+    html_content += f'<input type="hidden" id="session_id" value="{session_id}">\n'
+    html_content += f'<input type="hidden" id="task_id" value="{task_id}">\n'
     return render_template_string(html_content)
 
 
