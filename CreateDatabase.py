@@ -1,9 +1,11 @@
 # This is a python script that will create the required database tasks table.
-# DO NOT RUN THIS SCRIPT IF THE DATABASE ALREADY EXISTS. IT WILL DELETE THE EXISTING DATABASE AND CREATE A NEW ONE.
+# Run from a fresh study directory after preparing data.csv.
 
 COMPLETIONS_PER_TASK = 3  # Number of times each task should be completed by different participants
 NUMBER_OF_TASKS = 60  # Number of tasks to create in the database
 
+from pathlib import Path
+import pandas as pd
 import sqlite3
 from uuid import uuid4
 
@@ -75,7 +77,16 @@ def initTasks(num_tasks, db_file='database.db'):
 
 
 
-# --------------------------------------------------
-
-initDatabase()
-initTasks(NUMBER_OF_TASKS)
+if __name__ == "__main__":
+    row_count = len(pd.read_csv("data.csv"))
+    if NUMBER_OF_TASKS != row_count or row_count < 1 or COMPLETIONS_PER_TASK < 1:
+        raise SystemExit(f"CSV has {row_count} rows. Set NUMBER_OF_TASKS to that count "
+                         "and COMPLETIONS_PER_TASK to a positive integer.")
+    # Exclusive creation prevents two initializers from seeding the same file.
+    try:
+        Path("database.db").touch(mode=0o600, exist_ok=False)
+    except FileExistsError:
+        raise SystemExit("database.db already exists. Use a fresh study directory.")
+    initDatabase()
+    initTasks(NUMBER_OF_TASKS)
+    print(f"Created {row_count * COMPLETIONS_PER_TASK} places across {row_count} CSV rows.")
