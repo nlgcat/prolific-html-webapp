@@ -1,17 +1,26 @@
-# Flask app for Prolific experiments
+# Run MTurk-style HTML tasks with Flask and Prolific
 
-The app serves a consent page and assigns one CSV row to each participant submission. A row can contain multiple stimuli and can be allocated to several independent participants. The bundled CSV and questionnaire show one example. Run the following commands in the app directory, which is also where the app reads its files and writes its results.
+This Flask app hosts tasks in the style of Amazon Mechanical Turk (MTurk) and recruits participants through Prolific. As with an MTurk HTML task, you supply a questionnaire template and a CSV of inputs. Each row defines one task, and you choose how many different participants can complete it. Prolific sends participants to the app. Flask collects consent, assigns a task, fills in the template and saves the answers. The questionnaire then sends the participant back to Prolific.
+
+Clone the app into a study directory on a host with Python 3 and virtual environment support. Run the setup commands from that directory. The app reads its study files and writes its results there.
+
+```bash
+git clone https://github.com/nlgcat/prolific-html-webapp.git my-study
+cd my-study
+```
 
 ## Prepare a study
 
 | File | What to configure |
 |---|---|
 | `data.csv` | Use a header and one row per allocatable task. Column names must match the placeholders in your questionnaire. |
-| `templates/interface.html` | Supply the study instructions, stimuli, inputs, answer validation and submission handler. The bundled example's 32 items, timers and practice checks are specific to that questionnaire. |
-| `templates/consent.html` | Edit the text in your supplied consent form, then save it here. The app displays it before allocating a task. |
+| `templates/interface.html` | Adapt the bundled questionnaire or supply your own HTML with participant instructions, input fields, validation and a submission handler. |
+| `templates/consent.html` | Save your study’s consent form here. The app displays it before allocating a task. See the form requirements below. |
 | `CreateDatabase.py` | Set `NUMBER_OF_TASKS` to the number of CSV data rows and `COMPLETIONS_PER_TASK` to the number of independent assignments per row. |
 
 ### Questionnaire
+
+For example, a CSV with a column named `prompt` can supply the text for `<p>${prompt}</p>` in your questionnaire. A row containing `Choose a title for this image` will display that instruction. Use the column names and answer fields your own task needs.
 
 Use `${column_name}` in HTML text for CSV values and `${task_id}` for the assignment UUID. The app escapes substituted values for HTML text and adds hidden inputs with IDs `prolific_pid` and `session_id`. On submission, POST a JSON object to `/` containing `task_id`, `prolific_pid`, `session_id` and your answer fields. The interface defines which answers must be complete. Redirect to the study's actual Prolific completion URL only after HTTP 200 and JSON `{"result":"OK"}`. The URL in the example is a placeholder. If receipt is uncertain, retry the same payload.
 
@@ -96,10 +105,10 @@ The allocator claims waiting copies in database order, skips rows already alloca
 
 You can use one server, port and participant URL for several Prolific studies. Run one posting at a time. `PROLIFIC_STUDY_ID` checks the incoming study ID. The running app draws tasks from the database in its working directory. Changing the study ID alone leaves the same tasks available.
 
-1. **Prepare one study directory per primary batch.** Each needs the app files, templates, its own `study.env` and a `data.csv` containing the header and just that batch’s rows in their original order. Keep the original item identifiers in the CSV. Task numbers in each database start at 1. Set `NUMBER_OF_TASKS` and `COMPLETIONS_PER_TASK` and run the initializer once in each directory. For example, a 100-item study with four equal batches and three judgments per item uses original rows 1–25, 26–50, 51–75 and 76–100. Each directory contains 25 data rows and starts with 75 assignments.
+1. **Prepare one study directory per batch.** Follow the setup above for each directory, with its own `study.env`, questionnaire and `data.csv`. Include the header and the rows for that batch. If you need to match items across exports, keep a stable item identifier in the CSV because task numbers start at 1 in each database. Set `NUMBER_OF_TASKS` to that batch’s row count and `COMPLETIONS_PER_TASK` to the assignments you need per row. Run the initializer once in each directory. The number of available assignments is the product of those two settings.
 2. **Open the current posting.** Give each primary Prolific study the same participant URL with the three URL parameters above. In the active directory, set `PROLIFIC_STUDY_ID` to that posting’s ID and set the questionnaire’s completion URL to its Prolific completion URL. Load `study.env` and start Gunicorn from this directory using the commands above. If you use a service manager, set its working directory and environment file to this batch’s paths and restart the service.
-3. **Handle replacements within the active batch.** Once the posting is closed and active submissions have finished, apply your protocol’s attention checks and eligibility rules. For each completed response that needs replacing, add one waiting assignment for the same item to this batch’s existing database. Keep the completed response. Use the replacement posting’s own study ID and completion URL, reload the environment and restart Gunicorn before opening that posting. This keeps prior assignments available to the allocator’s same-participant, same-item check.
-4. **Switch batches** once the current batch meets the protocol’s completion requirement. For the example above, each of its 25 items needs three valid judgments from distinct participants. After active submissions finish, stop Gunicorn, switch to the next batch’s directory and repeat step 2. The server itself can stay up throughout.
+3. **Handle replacements if your study uses them.** Once the posting is closed and active submissions have finished, identify any completed responses that need replacing under your study’s rules. For each one, add a waiting assignment for the same item to the active database using the command below. The original response stays in the database, so the allocator can still tell which participants have seen the item. Use the replacement posting’s study ID and completion URL, reload the environment and restart Gunicorn before opening that posting.
+4. **Switch batches** once the current batch meets your study’s completion criteria and active submissions have finished. Stop Gunicorn, switch to the next batch’s directory and repeat step 2. The server itself can stay up throughout.
 
 To add replacements for completed responses, run the following in the active batch directory. Replace the example argument with the exported `task_id` of the response to replace. You can pass several IDs separated by spaces. Reusing an ID in this command creates at most one replacement for that response. If a replacement also needs replacing, pass its own task ID.
 
