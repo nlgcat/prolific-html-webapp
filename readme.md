@@ -92,6 +92,38 @@ Each researcher URL below takes `?code=YOUR_CODE`:
 
 The allocator claims waiting copies in database order, skips rows already allocated to or completed by the same participant, and resumes the assignment on refresh. Unsubmitted answers can be lost on refresh.
 
+## Running sequential batches
+
+You can use one server, port and participant URL for several Prolific studies. Run one posting at a time. `PROLIFIC_STUDY_ID` checks the incoming study ID. The running app draws tasks from the database in its working directory. Changing the study ID alone leaves the same tasks available.
+
+1. **Prepare one study directory per primary batch.** Each needs the app files, templates, its own `study.env` and a `data.csv` containing the header and just that batch’s rows in their original order. Keep the original item identifiers in the CSV. Task numbers in each database start at 1. Set `NUMBER_OF_TASKS` and `COMPLETIONS_PER_TASK` and run the initializer once in each directory. For example, a 100-item study with four equal batches and three judgments per item uses original rows 1–25, 26–50, 51–75 and 76–100. Each directory contains 25 data rows and starts with 75 assignments.
+2. **Open the current posting.** Give each primary Prolific study the same participant URL with the three URL parameters above. In the active directory, set `PROLIFIC_STUDY_ID` to that posting’s ID and set the questionnaire’s completion URL to its Prolific completion URL. Load `study.env` and start Gunicorn from this directory using the commands above. If you use a service manager, set its working directory and environment file to this batch’s paths and restart the service.
+3. **Handle replacements within the active batch.** Once the posting is closed and active submissions have finished, apply your protocol’s attention checks and eligibility rules. For each completed response that needs replacing, add one waiting assignment for the same item to this batch’s existing database. Keep the completed response. Use the replacement posting’s own study ID and completion URL, reload the environment and restart Gunicorn before opening that posting. This keeps prior assignments available to the allocator’s same-participant, same-item check.
+4. **Switch batches** once the current batch meets the protocol’s completion requirement. For the example above, each of its 25 items needs three valid judgments from distinct participants. After active submissions finish, stop Gunicorn, switch to the next batch’s directory and repeat step 2. The server itself can stay up throughout.
+
+To add replacements for completed responses, run the following in the active batch directory. Replace the example argument with the exported `task_id` of the response to replace. You can pass several IDs separated by spaces. Reusing an ID in this command creates at most one replacement for that response. If a replacement also needs replacing, pass its own task ID.
+
+```bash
+.venv/bin/python - REPLACE_WITH_COMPLETED_TASK_ID <<'PY'
+import sqlite3
+import sys
+import uuid
+
+with sqlite3.connect("file:database.db?mode=rw", uri=True) as db:
+    for original in sys.argv[1:]:
+        row = db.execute(
+            "SELECT task_number FROM tasks WHERE id=? AND status='completed'", (original,)
+        ).fetchone()
+        if row is None:
+            raise SystemExit(f"No completed assignment {original} in this batch")
+        replacement = str(uuid.uuid5(uuid.UUID(original), "replacement"))
+        db.execute(
+            "INSERT INTO tasks (id, task_number, status) VALUES (?, ?, 'waiting') "
+            "ON CONFLICT(id) DO NOTHING", (replacement, row[0])
+        )
+PY
+```
+
 ## Access saved results
 
 SQLite stores results in `database.db`. The app also writes `data/<task_id>/<task_id>.json`. A database task number is the **one-based** CSV row number. You can inspect status, export responses and take a consistent SQLite backup with:
