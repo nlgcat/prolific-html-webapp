@@ -2,10 +2,10 @@
 
 This Flask app hosts tasks in the style of Amazon Mechanical Turk (MTurk) and recruits participants through Prolific. As with an MTurk HTML task, you supply a questionnaire template and a CSV of inputs. Each row defines one task, and you choose how many different participants can complete it. Prolific sends participants to the app. Flask collects consent, assigns a task, fills in the template and saves the answers. The questionnaire then sends the participant back to Prolific.
 
-Clone the app into a study directory on a host with Python 3 and virtual environment support. Run the setup commands from that directory. The app reads its study files and writes its results there.
+Clone the app’s `main` branch into a study directory on a host with Python 3 and virtual environment support. Run the setup commands from that directory. The app reads its study files and writes its results there.
 
 ```bash
-git clone https://github.com/nlgcat/prolific-html-webapp.git my-study
+git clone --branch main https://github.com/nlgcat/prolific-html-webapp.git my-study
 cd my-study
 ```
 
