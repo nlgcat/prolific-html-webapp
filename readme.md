@@ -34,7 +34,7 @@ The consent page is served as plain HTML. Submit a form to the current URL using
 <button type="submit" name="decision" value="decline" formnovalidate>Decline and leave</button>
 ```
 
-Accepting records consent in the signed browser session. Declining ends the flow before allocation. The session cookie requires HTTPS. A study that requires a durable consent receipt must arrange for that separately.
+Accepting records consent in the signed browser session. Declining ends the flow before allocation. A study that requires a durable consent receipt must arrange for that separately.
 
 </details>
 
@@ -64,6 +64,7 @@ EOF_ENV
 | Variable | Meaning |
 |---|---|
 | `PORT` | Local listening port. The default is `8101`. |
+| `SESSION_COOKIE_SECURE` | Leave unset for HTTP. Set to `1` for an HTTPS-only site. |
 | `MAX_TIME` | Assignment lifetime in seconds. Default `3600`. Cleanup runs periodically at this interval. |
 | `PROLIFIC_STUDY_ID` | Allowed Prolific study ID. Set it to the current draft or posting so links from other postings are rejected. |
 | `LAB_ADMIN_CODE` | Private code for researcher URLs. Without a configured code those routes return 404. |
@@ -81,14 +82,16 @@ To start the app, load the configuration into the environment and run Gunicorn f
 set -a
 . ./study.env
 set +a
-.venv/bin/gunicorn --bind "127.0.0.1:${PORT:-8101}" --workers 1 --threads 4 --access-logfile /dev/null main:app
+.venv/bin/gunicorn --bind "0.0.0.0:${PORT:-8101}" --workers 1 --threads 4 --access-logfile /dev/null main:app
 ```
 
-One worker runs the in-process expiry scheduler. For a public study, configure an HTTPS reverse proxy to the loopback listener. Configure your service manager to use the study directory as its working directory, load the same environment and start Gunicorn after a reboot. Keep secrets and full request URLs out of logs. The app uses local SQLite and filesystem storage.
+This serves HTTP directly. Allow inbound TCP on the chosen port so participants can reach it. HTTP sends participant IDs, session cookies, responses and any researcher codes used over that connection in clear text. For an HTTPS deployment, bind Gunicorn to loopback behind your HTTPS reverse proxy and set `SESSION_COOKIE_SECURE=1`.
+
+One worker runs the in-process expiry scheduler. Configure your service manager to use the study directory as its working directory, load the same environment and start Gunicorn after a reboot. Keep secrets and full request URLs out of logs. The app uses local SQLite and filesystem storage.
 
 ## Participant and researcher URLs
 
-Configure the external Prolific study to send participants to `https://YOUR_HOST/study/` with the URL parameters `PROLIFIC_PID`, `STUDY_ID` and `SESSION_ID`. A bare participant URL without identifiers returns 400.
+For direct HTTP, enter `http://YOUR_PUBLIC_IP:8101/study/` as the external study URL in Prolific. Substitute your server’s address and configured port. Include the URL parameters `PROLIFIC_PID`, `STUDY_ID` and `SESSION_ID`. A bare participant URL without identifiers returns 400.
 
 Each researcher URL below takes `?code=YOUR_CODE`:
 

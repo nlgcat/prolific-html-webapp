@@ -21,7 +21,8 @@ MAX_TIME = int(os.environ.get("MAX_TIME", "3600"))
 df = pd.read_csv('data.csv')
 app = Flask(__name__)
 app.config.update(SECRET_KEY=os.environ["FLASK_SECRET_KEY"], SESSION_COOKIE_HTTPONLY=True,
-                  SESSION_COOKIE_SAMESITE="Lax", SESSION_COOKIE_SECURE=True)
+                  SESSION_COOKIE_SAMESITE="Lax",
+                  SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE") == "1")
 if not app.secret_key:
     raise RuntimeError("Set a nonempty FLASK_SECRET_KEY for this lab.")
 ID = re.compile(r"[A-Za-z0-9_-]{1,128}")

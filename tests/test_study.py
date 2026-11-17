@@ -62,6 +62,26 @@ class StudyTest(unittest.TestCase):
         self.consent.unlink()
         self.assertEqual(self.client.get(url).status_code, 503)
 
+    def test_http_and_https_session_cookie(self):
+        from http.cookies import SimpleCookie
+
+        # Import the app in a fresh process for each startup configuration.
+        probe = (
+            "from main import app\n"
+            f"response = app.test_client().get({self.link()!r})\n"
+            "print(response.headers['Set-Cookie'])"
+        )
+        env = dict(os.environ, PYTHONPATH=str(ROOT))
+        env.pop("SESSION_COOKIE_SECURE", None)
+        for secure in (False, True):
+            if secure:
+                env["SESSION_COOKIE_SECURE"] = "1"
+            header = subprocess.check_output([sys.executable, "-c", probe], env=env, text=True)
+            cookie = SimpleCookie(header.strip())["session"]
+            self.assertEqual(bool(cookie["secure"]), secure)
+            self.assertTrue(cookie["httponly"])
+            self.assertEqual(cookie["samesite"], "Lax")
+
     def test_consent_form_requires_each_acknowledgement(self):
         self.consent.write_text(
             '<form method="post">'
