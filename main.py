@@ -10,6 +10,7 @@ from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
 from uuid import UUID
+from urllib.parse import urlencode
 
 import pandas as pd
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -115,12 +116,26 @@ def study():
         session["consent_ack"] = checks.values
         return page
     try:
-        task = dm.allocate_task(pid, sid)
-    except sqlite3.Error:
+        receipts_db = os.environ.get("NO_TASKS_RECEIPTS_DB", "database.db")
+        issued_code = dm.get_no_tasks_completion(pid, sid, study_id, receipts_db)
+        # A submission already given a no-task code stays on its receipt page,
+        # including when assignments later expire or new tasks are added.
+        task = None if issued_code else dm.allocate_task(pid, sid)
+        if task is None:
+            code = issued_code or os.environ.get("NO_TASKS_COMPLETION_CODE", "").strip()
+            if not code:
+                return ("No tasks available. Please contact the lab through Prolific. "
+                        "Please do not accept any more tasks for this study."), 409
+            page = Path("templates/no_tasks.html").read_text()
+            code = issued_code or dm.claim_no_tasks_completion(pid, sid, study_id, code, receipts_db)
+            completion_url = None
+            if code:
+                completion_url = "https://app.prolific.co/submissions/complete?" + urlencode({"cc": code})
+            # Resolve templates from the active study directory, like the questionnaire.
+            return render_template_string(page, code=code, completion_url=completion_url), 200 if code else 409
+    except (sqlite3.Error, OSError):
         app.logger.exception("Task allocation failed")
         abort(503, "Unable to open the task. Please try again.")
-    if task is None:
-        return "No tasks available. Please contact the lab through Prolific.", 409
     task_id, task_number = task
     return task_page(task_number - 1, task_id, participant)
 
@@ -155,10 +170,11 @@ def index():
                 os.replace(tmp.name, directory / f"{task_id}.json")
             finally:
                 Path(tmp.name).unlink(missing_ok=True)
+        more_tasks_available = dm.completion_has_more_tasks(task_id)
     except (OSError, sqlite3.Error):
         app.logger.exception("Saving the submission failed")
         return {"result": "Unable to confirm save. Retry with the same answers."}, 503
-    return {"result": "OK"}
+    return {"result": "OK", "more_tasks_available": more_tasks_available}
 
 
 @app.route('/row/<int:row_id>', methods=['GET', 'POST'])

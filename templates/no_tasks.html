@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>No tasks available</title>
+</head>
+<body>
+  <main>
+    <h1>No tasks available</h1>
+    <p>There are no tasks available for you to complete.</p>
+    <p><strong>Please do not accept any more tasks for this study.</strong></p>
+    {% if code %}
+    <p>For this first visit with no available tasks, use completion code <strong>{{ code }}</strong>.</p>
+    <p><a href="{{ completion_url }}">Complete this submission on Prolific</a></p>
+    {% else %}
+    <p>You have already received a completion code for an earlier visit with no available tasks.</p>
+    <p>Please return this submission on Prolific. Contact the lab through Prolific if you need help.</p>
+    {% endif %}
+  </main>
+</body>
+</html>
