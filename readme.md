@@ -24,6 +24,16 @@ For example, a CSV with a column named `prompt` can supply the text for `<p>${pr
 
 Use `${column_name}` in HTML text for CSV values and `${task_id}` for the assignment UUID. The app escapes substituted values for HTML text and adds hidden inputs with IDs `prolific_pid` and `session_id`. On submission, POST a JSON object to `/` containing `task_id`, `prolific_pid`, `session_id` and your answer fields. The interface defines which answers must be complete. Redirect to the study's actual Prolific completion URL only after HTTP 200 and JSON `{"result":"OK"}`. The URL in the example is a placeholder. If receipt is uncertain, retry the same payload.
 
+Successful submission responses also contain `more_tasks_available`. When it is `false`, show the following warning before redirecting to Prolific. The bundled questionnaire includes this check. Add it to your own questionnaire's successful-save handler if you have replaced that template.
+
+```javascript
+if (jsonResponse.more_tasks_available === false) {
+  alert("There are no further tasks available for you. Please do not accept any more tasks for this study.");
+}
+```
+
+Availability is recorded when the response is committed, using the same eligibility rules as allocation. Retries preserve that answer. It is a snapshot of availability at that time. For a response saved before this feature was installed, availability is recorded on its first successful retry.
+
 <details>
 <summary>Writing a consent form from scratch</summary>
 
@@ -69,6 +79,8 @@ EOF_ENV
 | `PROLIFIC_STUDY_ID` | Allowed Prolific study ID. Set it to the current draft or posting so links from other postings are rejected. |
 | `LAB_ADMIN_CODE` | Private code for researcher URLs. Without a configured code those routes return 404. |
 | `FLASK_SECRET_KEY` | Required signing key for consent sessions. Keep it private and stable across restarts. |
+| `NO_TASKS_COMPLETION_CODE` | Set to the Prolific completion code for a participant's first visit with no eligible tasks. Use a code configured for that outcome in the current Prolific posting. |
+| `NO_TASKS_RECEIPTS_DB` | SQLite file recording these one-time codes. Defaults to `database.db`. Set an absolute path shared by all batch directories to enforce one code per participant across those batches. |
 
 After configuring the CSV and task counts, initialize the database **once in a fresh study directory**. The initializer checks the row count and refuses to overwrite an existing database:
 
@@ -104,6 +116,20 @@ Each researcher URL below takes `?code=YOUR_CODE`:
 
 The allocator claims waiting copies in database order, skips rows already allocated to or completed by the same participant, and resumes the assignment on refresh. Unsubmitted answers can be lost on refresh.
 
+### When no eligible tasks remain
+
+After consent, the app shows `templates/no_tasks.html` if allocation finds no eligible task. With `NO_TASKS_COMPLETION_CODE` configured, the first such submission for each participant receives that code and a link to complete the submission on Prolific. The page asks them to accept no more tasks for this study.
+
+Refreshing or reopening that same participant/session/study combination recovers the issued code. A later submission by that participant receives a message asking them to return the submission, with HTTP 409. The receipt persists across server restarts and browser-cookie changes. If the code is unset, the page asks the participant to contact the lab and accept no more tasks, with HTTP 409. This leaves the first-code entitlement unused.
+
+Configure the code in Prolific and add it to `study.env` before collecting responses:
+
+```bash
+NO_TASKS_COMPLETION_CODE=REPLACE_WITH_PROLIFIC_CODE
+```
+
+The app creates its additional SQLite tables automatically for existing studies. Keep `templates/no_tasks.html` in each active study directory when applying this update.
+
 ## Running sequential batches
 
 You can use one server, port and participant URL for several Prolific studies. Run one posting at a time. `PROLIFIC_STUDY_ID` checks the incoming study ID. The running app draws tasks from the database in its working directory. Changing the study ID alone leaves the same tasks available.
@@ -112,6 +138,8 @@ You can use one server, port and participant URL for several Prolific studies. R
 2. **Open the current posting.** Give each primary Prolific study the same participant URL with the three URL parameters above. In the active directory, set `PROLIFIC_STUDY_ID` to that posting’s ID and set the questionnaire’s completion URL to its Prolific completion URL. Load `study.env` and start Gunicorn from this directory using the commands above. If you use a service manager, set its working directory and environment file to this batch’s paths and restart the service.
 3. **Handle replacements if your study uses them.** Once the posting is closed and active submissions have finished, identify any completed responses that need replacing under your study’s rules. For each one, add a waiting assignment for the same item to the active database using the command below. The original response stays in the database, so the allocator can still tell which participants have seen the item. Use the replacement posting’s study ID and completion URL, reload the environment and restart Gunicorn before opening that posting.
 4. **Switch batches** once the current batch meets your study’s completion criteria and active submissions have finished. Stop Gunicorn, switch to the next batch’s directory and repeat step 2. The server itself can stay up throughout.
+
+For one no-task completion per participant across all batches and replacement postings, set `NO_TASKS_RECEIPTS_DB` to the same absolute path in every batch's `study.env`, for example `/home/YOUR_USER/studies/no-tasks.db`. The parent directory must exist and be writable. Keep this file across batch changes and include it in your backups. Each posting still needs its own configured `NO_TASKS_COMPLETION_CODE`. Separate receipt files each enforce their own one-time allowance.
 
 To add replacements for completed responses, run the following in the active batch directory. Replace the example argument with the exported `task_id` of the response to replace. You can pass several IDs separated by spaces. Reusing an ID in this command creates at most one replacement for that response. If a replacement also needs replacing, pass its own task ID.
 
@@ -150,3 +178,5 @@ sqlite3 -readonly study-backup.db 'PRAGMA integrity_check; SELECT count(*) FROM 
 ```
 
 New submissions store JSON in `results.json_string`. Earlier versions used Python dictionary strings. Keep the original CSV, interface, consent HTML and study settings alongside the backup so the responses can be interpreted.
+
+No-task completion receipts are stored in the `no_tasks_completions` table of `NO_TASKS_RECEIPTS_DB`. The table records the participant, session, study, issued code and time. These receipts are separate from questionnaire responses in `results`.

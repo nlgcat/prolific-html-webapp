@@ -24,7 +24,9 @@ class StudyTest(unittest.TestCase):
         os.chdir(self.tmp.name)
         self.addCleanup(os.chdir, before)
         self.env = patch.dict(os.environ, {"LAB_ADMIN_CODE": "secret", "FLASK_SECRET_KEY": "test-key",
-                                          "PROLIFIC_STUDY_ID": "study1"})
+                                          "PROLIFIC_STUDY_ID": "study1",
+                                          "NO_TASKS_COMPLETION_CODE": "",
+                                          "NO_TASKS_RECEIPTS_DB": "database.db"})
         self.env.start()
         self.addCleanup(self.env.stop)
         shutil.copy(ROOT / "data.csv", ".")
@@ -134,7 +136,7 @@ class StudyTest(unittest.TestCase):
         with patch("main.os.replace", side_effect=OSError("test disk failure")):
             self.assertEqual(save(payload).status_code, 503)
         for _ in range(2):
-            self.assertEqual(save(payload).json, {"result":"OK"})
+            self.assertEqual(save(payload).json, {"result":"OK", "more_tasks_available": True})
         self.assertEqual(save(dict(payload, score=3)).status_code, 409)
         self.assertEqual(json.loads(Path(f"data/{key}/{key}.json").read_text()), payload)
         self.assertIn(b'"score": 2', self.client.get(f"/results/{key}?code=secret").data)
@@ -158,6 +160,95 @@ class StudyTest(unittest.TestCase):
         Path("data.csv").write_text("column\nfirst\n")
         self.assertNotEqual(self.initialize(False).returncode,0)
         self.assertFalse(Path("database.db").exists())
+
+    def enter(self, client, url):
+        self.assertEqual(client.get(url).status_code, 200)
+        return client.post(url, data={"decision": "accept"}, follow_redirects=True)
+
+    def test_no_tasks_code_once_and_original_submission_can_recover_it(self):
+        with sqlite3.connect("database.db") as db:
+            db.execute("DELETE FROM tasks")
+        with patch.dict(os.environ, {"NO_TASKS_COMPLETION_CODE": "FIRST123"}):
+            first = self.enter(self.client, self.link())
+            self.assertEqual(first.status_code, 200)
+            self.assertIn("FIRST123", first.text)
+            self.assertIn("Please do not accept any more tasks", first.text)
+            self.assertIn("https://app.prolific.co/submissions/complete?cc=FIRST123", first.text)
+            self.assertIn("FIRST123", self.client.get(self.link()).text)
+            other = self.enter(self.main.app.test_client(), self.link(sid="S2"))
+            self.assertEqual(other.status_code, 409)
+            self.assertNotIn("FIRST123", other.text)
+            self.assertIn("Please return this submission", other.text)
+            different_participant = self.enter(self.main.app.test_client(), self.link("P2", "S3"))
+            self.assertEqual(different_participant.status_code, 200)
+        # Persistence is independent of cookies and of a later code setting.
+        with patch.dict(os.environ, {"NO_TASKS_COMPLETION_CODE": "NEWCODE"}):
+            recovered = self.enter(self.main.app.test_client(), self.link())
+            self.assertIn("FIRST123", recovered.text)
+            self.assertNotIn("NEWCODE", recovered.text)
+        with sqlite3.connect("database.db") as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM no_tasks_completions").fetchone(), (2,))
+            self.assertEqual(db.execute("SELECT count(*) FROM results").fetchone(), (0,))
+            db.execute("INSERT INTO tasks(id,task_number,status) VALUES ('new-item',1,'waiting')")
+        self.assertIn("FIRST123", self.client.get(self.link()).text)
+        with sqlite3.connect("database.db") as db:
+            self.assertEqual(db.execute("SELECT status FROM tasks").fetchone(), ("waiting",))
+
+    def test_missing_code_does_not_consume_first_claim(self):
+        with sqlite3.connect("database.db") as db:
+            db.execute("DELETE FROM tasks")
+        self.assertEqual(self.enter(self.client, self.link()).status_code, 409)
+        with patch.dict(os.environ, {"NO_TASKS_COMPLETION_CODE": "FIRST123"}):
+            self.assertIn("FIRST123", self.client.get(self.link()).text)
+
+    def test_no_tasks_receipt_failure_is_retryable(self):
+        with sqlite3.connect("database.db") as db:
+            db.execute("DELETE FROM tasks")
+        with patch.dict(os.environ, {"NO_TASKS_COMPLETION_CODE": "FIRST123",
+                                    "NO_TASKS_RECEIPTS_DB": "missing/path.db"}):
+            self.assertEqual(self.enter(self.client, self.link()).status_code, 503)
+        with patch.dict(os.environ, {"NO_TASKS_COMPLETION_CODE": "FIRST123"}):
+            self.assertIn("FIRST123", self.client.get(self.link()).text)
+
+    def test_concurrent_no_tasks_claims_and_shared_batch_receipts(self):
+        dm = self.main.dm
+        shared = str(Path("shared-receipts.db").resolve())
+        def claim(i):
+            return dm.claim_no_tasks_completion("P1", f"S{i}", f"batch{i}", "FIRST123", shared)
+        with ThreadPoolExecutor(8) as pool:
+            codes = list(pool.map(claim, range(12)))
+        self.assertEqual(codes.count("FIRST123"), 1)
+        winner = codes.index("FIRST123")
+        self.assertEqual(claim(winner), "FIRST123")
+        self.assertIsNone(dm.claim_no_tasks_completion("P1", f"S{winner}", "another-study", "OTHER", shared))
+        self.assertEqual(dm.claim_no_tasks_completion("P2", "S1", "another-study", "OTHER", shared), "OTHER")
+
+    def test_completion_warning_uses_participant_eligibility_and_survives_retry(self):
+        key = self.start()
+        with sqlite3.connect("database.db") as db:
+            # Other copies remain, but this participant has already seen this item.
+            db.execute("DELETE FROM tasks WHERE task_number <> 1")
+        payload = dict(task_id=key, prolific_pid="P1", session_id="S1", score=2)
+        first = self.client.post("/", json=payload)
+        self.assertEqual(first.json, {"result": "OK", "more_tasks_available": False})
+        self.assertIn("Please do not accept any more tasks", Path("templates/interface.html").read_text())
+        with sqlite3.connect("database.db") as db:
+            db.execute("INSERT INTO tasks(id,task_number,status) VALUES ('new-item',2,'waiting')")
+        self.assertEqual(self.client.post("/", json=payload).json, first.json)
+        self.assertEqual(json.loads(Path(f"data/{key}/{key}.json").read_text()), payload)
+
+    def test_completion_with_more_tasks_and_legacy_retry(self):
+        key = self.start()
+        payload = dict(task_id=key, prolific_pid="P1", session_id="S1", score=2)
+        with sqlite3.connect("database.db") as db:
+            # Reproduce a response saved before this patch, using the original format.
+            db.execute("INSERT INTO results VALUES (?,?,?)", (key, str(payload), "P1"))
+            db.execute("UPDATE tasks SET status='completed' WHERE id=?", (key,))
+        first = self.client.post("/", json=payload)
+        self.assertEqual(first.json, {"result": "OK", "more_tasks_available": True})
+        with sqlite3.connect("database.db") as db:
+            db.execute("UPDATE tasks SET status='allocated' WHERE status='waiting'")
+        self.assertEqual(self.client.post("/", json=payload).json, first.json)
 
 
 if __name__ == "__main__":

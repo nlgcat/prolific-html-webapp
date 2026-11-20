@@ -2786,7 +2786,11 @@ async function sendData() {
     if (response.status === 200) {
       const jsonResponse = await response.json();
       if (jsonResponse.result !== "OK") throw new Error("Save not confirmed");
-      alert("We have received your submission. Thank you for your participation!");
+      let message = "We have received your submission. Thank you for your participation!";
+      if (jsonResponse.more_tasks_available === false) {
+        message += "\n\nThere are no further tasks available for you. Please do not accept any more tasks for this study.";
+      }
+      alert(message);
       window.location.href = "https://app.prolific.co/submissions/complete?cc=12345"; // Replace with your Prolific completion URL
     } else {
       alert("Your submission has not been confirmed. Keep this page open and retry with the same answers, or contact the lab on Prolific.");
