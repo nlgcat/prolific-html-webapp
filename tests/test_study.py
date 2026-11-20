@@ -250,6 +250,70 @@ class StudyTest(unittest.TestCase):
             db.execute("UPDATE tasks SET status='allocated' WHERE status='waiting'")
         self.assertEqual(self.client.post("/", json=payload).json, first.json)
 
+    def test_final_task_then_first_and_repeated_empty_submission(self):
+        task = self.start()
+        with sqlite3.connect("database.db") as db:
+            db.execute("DELETE FROM tasks WHERE id <> ?", (task,))
+        payload = dict(task_id=task, prolific_pid="P1", session_id="S1", score=7)
+        saved = self.client.post("/", json=payload)
+        self.assertEqual(saved.json, {"result": "OK", "more_tasks_available": False})
+        with patch.dict(os.environ, {"NO_TASKS_COMPLETION_CODE": "EMPTY123"}):
+            first = self.enter(self.main.app.test_client(), self.link(sid="S2"))
+            second = self.enter(self.main.app.test_client(), self.link(sid="S3"))
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("EMPTY123", first.text)
+        self.assertEqual(second.status_code, 409)
+        self.assertNotIn("EMPTY123", second.text)
+        with sqlite3.connect("database.db") as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM results").fetchone(), (1,))
+            self.assertEqual(json.loads(db.execute("SELECT json_string FROM results").fetchone()[0]),
+                             payload)
+
+    def test_completion_warning_when_all_unseen_items_are_occupied(self):
+        task = self.start()
+        with sqlite3.connect("database.db") as db:
+            db.execute("""UPDATE tasks SET status='allocated',prolific_id='OTHER',session_id='OTHER'
+                          WHERE task_number <> 1""")
+        payload = dict(task_id=task, prolific_pid="P1", session_id="S1", score=3)
+        self.assertFalse(self.client.post("/", json=payload).json["more_tasks_available"])
+        # P2 can still use a waiting copy of item 1, which P1 has already seen.
+        self.assertIsNotNone(self.main.dm.allocate_task("P2", "S2"))
+
+    def test_http_concurrent_empty_submissions_issue_only_one_receipt(self):
+        with sqlite3.connect("database.db") as db:
+            db.execute("DELETE FROM tasks")
+        def visit(i):
+            return self.enter(self.main.app.test_client(), self.link(sid=f"S{i}"))
+        with patch.dict(os.environ, {"NO_TASKS_COMPLETION_CODE": "EMPTY123"}):
+            with ThreadPoolExecutor(8) as pool:
+                responses = list(pool.map(visit, range(8)))
+        self.assertEqual(sum(r.status_code == 200 for r in responses), 1)
+        self.assertEqual(sum("EMPTY123" in r.text for r in responses), 1)
+        self.assertTrue(all(r.status_code in (200, 409) for r in responses))
+        with sqlite3.connect("database.db") as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM no_tasks_completions").fetchone(), (1,))
+
+    def test_shared_receipt_file_across_actual_batch_databases(self):
+        shared = str(Path("shared-receipts.db").resolve())
+        with sqlite3.connect("database.db") as db:
+            db.execute("DELETE FROM tasks")
+        with patch.dict(os.environ, {"NO_TASKS_COMPLETION_CODE": "FIRST123",
+                                    "NO_TASKS_RECEIPTS_DB": shared}):
+            first = self.enter(self.client, self.link())
+        self.assertIn("FIRST123", first.text)
+        Path("database.db").rename("batch1.db")
+        self.initialize()
+        with sqlite3.connect("database.db") as db:
+            db.execute("DELETE FROM tasks")
+        with patch.dict(os.environ, {"NO_TASKS_COMPLETION_CODE": "SECOND123",
+                                    "NO_TASKS_RECEIPTS_DB": shared,
+                                    "PROLIFIC_STUDY_ID": "study2"}):
+            second = self.enter(self.main.app.test_client(), self.link(sid="S2").replace("study1", "study2"))
+            new_person = self.enter(self.main.app.test_client(), self.link("P2", "S3").replace("study1", "study2"))
+        self.assertEqual(second.status_code, 409)
+        self.assertNotIn("SECOND123", second.text)
+        self.assertEqual(new_person.status_code, 200)
+        self.assertIn("SECOND123", new_person.text)
 
 if __name__ == "__main__":
     unittest.main()
