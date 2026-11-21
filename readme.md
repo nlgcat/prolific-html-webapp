@@ -22,13 +22,15 @@ cd my-study
 
 For example, a CSV with a column named `prompt` can supply the text for `<p>${prompt}</p>` in your questionnaire. A row containing `Choose a title for this image` will display that instruction. Use the column names and answer fields your own task needs.
 
-Use `${column_name}` in HTML text for CSV values and `${task_id}` for the assignment UUID. The app escapes substituted values for HTML text and adds hidden inputs with IDs `prolific_pid` and `session_id`. On submission, POST a JSON object to `/` containing `task_id`, `prolific_pid`, `session_id` and your answer fields. The interface defines which answers must be complete. Redirect to the study's actual Prolific completion URL only after HTTP 200 and JSON `{"result":"OK"}`. The URL in the example is a placeholder. If receipt is uncertain, retry the same payload.
+Use `${column_name}` in HTML text for CSV values and `${task_id}` for the assignment UUID. The app escapes substituted values for HTML text and adds hidden inputs with IDs `prolific_pid` and `session_id`. On submission, POST a JSON object to `/` containing `task_id`, `prolific_pid`, `session_id` and your answer fields. The interface defines which answers must be complete. Show the completion screen only after HTTP 200 and JSON `{"result":"OK"}`. The bundled questionnaire shows an inline message and a link labelled "Complete this submission on Prolific"; it does not open a popup or redirect automatically. Replace the placeholder completion URL in `showCompletion()` with your study's actual Prolific completion URL. If receipt is uncertain, retry the same payload.
 
-Successful submission responses also contain `more_tasks_available`. When it is `false`, show the following warning before redirecting to Prolific. The bundled questionnaire includes this check. Add it to your own questionnaire's successful-save handler if you have replaced that template.
+Successful submission responses also contain `more_tasks_available`. When it is `false`, show the following inline warning on the completion screen, above the Prolific link. The bundled questionnaire includes this check. Add it to your own questionnaire's successful-save handler if you have replaced that template (`completionPanel` below is your completion screen's element).
 
 ```javascript
 if (jsonResponse.more_tasks_available === false) {
-  alert("There are no further tasks available for you. Please do not accept any more tasks for this study.");
+  const warning = document.createElement("p");
+  warning.textContent = "There are no further tasks available for you. Please do not accept any more tasks for this study.";
+  completionPanel.append(warning);
 }
 ```
 

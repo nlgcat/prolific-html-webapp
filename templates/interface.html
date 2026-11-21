@@ -190,7 +190,6 @@ function updateExamples(example, field, score)
 {
     correctHtml = '&#10004;';
     wrongHtml = '&#10008;';
-    // alert(example + field + score);
     if (example == 0)
     {
         if (field == 'meaning')
@@ -2701,7 +2700,7 @@ function getCheckValue(checkName)
 function checkScores() {
     if(getCheckValue('meaningex0') != 'A' || getCheckValue('dissimex0') != 'A' || getCheckValue('meaningex1') != 'A' || getCheckValue('dissimex1') != 'B' || getCheckValue('fluencyex0') != 'B' || getCheckValue('fluencyex1') != 'B')
     {
-        alert('You must get the examples correct!')
+        showTaskMessage('You must get the examples correct!');
         return false;
     }
     
@@ -2715,11 +2714,10 @@ function checkScores() {
         for(var k = 0; k < cnames.length; k ++)
         {
             checkName = cnames[k] + i;
-            // alert(checkName);
             checkValue = getCheckValue(checkName);
             if(checkValue == "")
             {
-                alert("Evaluation for Task " + (i+1) + " is not finished! (" + actual_names[k] + " is empty!)");
+                showTaskMessage("Evaluation for Task " + (i+1) + " is not finished! (" + actual_names[k] + " is empty!)");
                 document.getElementById("error_message").innerHTML = "\<font color=\"red\"\>Evaluation for Task " 
                     + (i+1) + " is not finished! (" + actual_names[k] + " is empty!)\<\/font\>";
                 $('#error-wrapper').show()
@@ -2766,13 +2764,55 @@ function collectData() {
 }
 
 
+let submissionCompleted = false;
+
+function showTaskMessage(message) {
+  let panel = document.getElementById("submission-message");
+  if (!panel) {
+    panel = document.createElement("p");
+    panel.id = "submission-message";
+    panel.setAttribute("role", "status");
+    panel.tabIndex = -1;
+    panel.style.whiteSpace = "pre-line";
+    document.body.prepend(panel);
+  }
+  panel.textContent = message;
+  panel.focus();
+  panel.scrollIntoView({block: "center"});
+}
+
+function showCompletion(moreTasksAvailable) {
+  const panel = document.createElement("main");
+  panel.id = "completion-message";
+  panel.tabIndex = -1;
+  const heading = document.createElement("h1");
+  heading.textContent = "Submission received";
+  const message = document.createElement("p");
+  message.textContent = "We have received your submission. Thank you for your participation!";
+  panel.append(heading, message);
+  if (moreTasksAvailable === false) {
+    const warning = document.createElement("p");
+    warning.textContent = "There are no further tasks available for you. Please do not accept any more tasks for this study.";
+    panel.append(warning);
+  }
+  const link = document.createElement("a");
+  link.href = "https://app.prolific.co/submissions/complete?cc=12345"; // Replace with your Prolific completion URL
+  link.textContent = "Complete this submission on Prolific";
+  panel.append(link);
+  document.body.replaceChildren(panel);
+  panel.focus();
+}
+
 async function sendData() {
+  const button = document.getElementById("submit-button");
+  if (submissionCompleted || button.disabled) return;
   if (!checkScores()) {
     return; // Do not send data if checkScores() returns false
   }
 
   const data = collectData();
   const url = "/"; // Replace with your server URL
+  button.disabled = true;
 
   try {
     const response = await fetch(url, {
@@ -2786,17 +2826,15 @@ async function sendData() {
     if (response.status === 200) {
       const jsonResponse = await response.json();
       if (jsonResponse.result !== "OK") throw new Error("Save not confirmed");
-      let message = "We have received your submission. Thank you for your participation!";
-      if (jsonResponse.more_tasks_available === false) {
-        message += "\n\nThere are no further tasks available for you. Please do not accept any more tasks for this study.";
-      }
-      alert(message);
-      window.location.href = "https://app.prolific.co/submissions/complete?cc=12345"; // Replace with your Prolific completion URL
+      submissionCompleted = true;
+      showCompletion(jsonResponse.more_tasks_available);
     } else {
-      alert("Your submission has not been confirmed. Keep this page open and retry with the same answers, or contact the lab on Prolific.");
+      showTaskMessage("Your submission has not been confirmed. Keep this page open and retry with the same answers, or contact the lab on Prolific.");
     }
   } catch (error) {
-    alert("Could not confirm receipt. Please keep the page open and try submitting the same answers again.");
+    showTaskMessage("Could not confirm receipt. Please keep the page open and try submitting the same answers again.");
+  } finally {
+    if (!submissionCompleted) button.disabled = false;
   }
 }
 
@@ -2806,7 +2844,7 @@ document.getElementById("submit-button").addEventListener("click", sendData);
 </script>
 
 <script>
-    // This script tag will start a countdown to alert the worker when 50 minutes have passed.
+    // Show an inline warning when 50 minutes have passed.
     // The worker will have 10 minutes to finish the task before the HIT is automatically submitted.
     function startWarningCountdown() {
         var minutes = 50; //var minutes = 50;
@@ -2814,6 +2852,7 @@ document.getElementById("submit-button").addEventListener("click", sendData);
         var totalSeconds = minutes * 60 + seconds;
 
         var interval = setInterval(function () {
+            if (submissionCompleted) { clearInterval(interval); return; }
             seconds--;
             if (seconds < 0) {
                 minutes--;
@@ -2822,7 +2861,7 @@ document.getElementById("submit-button").addEventListener("click", sendData);
 
             if (minutes < 0) {
                 clearInterval(interval);
-                alert("50 minutes have passed! You have 10 minutes to finish the task! If you do not finish in time, your answers will not be used and you will not be paid.");
+                showTaskMessage("50 minutes have passed! You have 10 minutes to finish the task! If you do not finish in time, your answers will not be used and you will not be paid.");
             }
         }, 1000);
     }
@@ -2832,6 +2871,7 @@ document.getElementById("submit-button").addEventListener("click", sendData);
         var totalSeconds = minutes * 60 + seconds;
 
         var interval = setInterval(function() {
+            if (submissionCompleted) { clearInterval(interval); return; }
             seconds--;
             if (seconds < 0) {
                 minutes--;
@@ -2847,7 +2887,7 @@ document.getElementById("submit-button").addEventListener("click", sendData);
 
                 clearInterval(interval);
 
-                alert("The allocated time for this task has passed. Your answers will not be used and you will not be paid.");
+                showTaskMessage("The allocated time for this task has passed. Your answers will not be used and you will not be paid.");
 
                 // Redirect the worker to the Prolific app: https://app.prolific.com/
                 window.location.href = "https://app.prolific.co/";
